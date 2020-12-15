@@ -2,11 +2,11 @@ from PIL import Image, ImageDraw
 from text_to_visrep import *
 
 visrep = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
-live_x, live_y = 50, 50
-BLOCK_WIDTH = 10
-BLOCK_GAP = BLOCK_WIDTH/2
+live_x, live_y = 150, 150
+BLOCK_WIDTH = 15
+BLOCK_GAP = BLOCK_WIDTH/3
 
-visrep_display = Image.new('RGB', (1000, 1000), color = (73, 109, 137))
+visrep_display = Image.new('RGB', (1000, 1000), color = (138, 105, 243))
 modify_display = ImageDraw.Draw(visrep_display)
 
 for row in visrep:
