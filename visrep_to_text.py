@@ -38,9 +38,12 @@ def decode_visrep(visrep):
     # Return decoded_text_as_list as a string, which is the final decoded string
     return "".join(decoded_text_as_list)
 
+def test(test):
+    return test + " hello there"
+
 # Testing
 if __name__ == "__main__":
-    test = generate_visrep("This is a test statement.")
+    test = generate_visrep("https://www.qr-code-generator.com/")
     for row in test:
         print(row)
     print(decode_visrep(test))
