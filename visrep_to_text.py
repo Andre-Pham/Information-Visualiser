@@ -3,6 +3,17 @@
 # Import complimenting scripts
 from text_to_visrep import *
 
+def binlist_to_int(binlist):
+    '''
+    Generates an integer from a list, which contains 0s and 1s to represent a
+    binary value.
+    '''
+    # Convert the list to a string which represents the binary datatype
+    bin_representation = "0b" + "".join(list(map(str, binlist)))
+    # Converts the binary value to an integer, and returns it
+    num_representation = int(bin_representation, 2)
+    return num_representation
+
 def decode_visrep(visrep):
     '''
     Generates the string from its visual representation, which is a 2D matrix
@@ -15,15 +26,12 @@ def decode_visrep(visrep):
     # a character
     for letter_rep in visrep:
         # Decode the character as a string
-        letter_bin_representation = "0b" + "".join(list(map(str, letter_rep[0:10])))
-        letter_num_representation = int(letter_bin_representation, 2)
-        letter = chr(letter_num_representation)
+        letter = chr(binlist_to_int(letter_rep[0:10]))
         # Capitalise the letter if necessary
         if letter_rep[10] == 1:
             letter = letter.upper()
         # Decode the location of the character
-        location_bin_representaiton = "0b" + "".join(list(map(str, letter_rep[12:22])))
-        location_num_representation = int(location_bin_representaiton, 2)
+        location_num_representation = binlist_to_int(letter_rep[12:22])
         # Insert the character into its correct location in decoded_text_as_list
         decoded_text_as_list.insert(location_num_representation, letter)
 
