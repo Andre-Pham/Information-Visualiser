@@ -2,6 +2,8 @@
 
 import math
 
+INIT_BIT_COUNT = 4
+
 def is_square(num):
     return num == math.isqrt(num)**2
 
@@ -39,8 +41,8 @@ def generate_visrep(input_text):
     char_list_length = len(bin(largest_num_rep)) - 2
 
     # Something
-    # Note, the first 6 digits of visrep are char_list_length
-    num_blocks = (char_list_length + 1)*len(input_text) + 6
+    # Note, the first 9 digits of visrep are char_list_length
+    num_blocks = (char_list_length + 1)*len(input_text) + INIT_BIT_COUNT
     new_block_count = 0
     while is_square(num_blocks) == False:
         new_block_count += 1
@@ -50,7 +52,7 @@ def generate_visrep(input_text):
     # Define the visual representation to be returned
     visrep = len_to_dyn(
         num_to_bin_list(char_list_length + 1),
-        6
+        INIT_BIT_COUNT
     )
 
     # Loop through every letter of the input text

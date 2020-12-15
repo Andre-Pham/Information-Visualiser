@@ -23,8 +23,8 @@ def decode_visrep(visrep):
     decoded_text = ""
 
     flat_visrep = [bit for row in visrep for bit in row]
-    char_list_len = binlist_to_int(flat_visrep[:6])
-    for i in range(6, len(flat_visrep)-6, char_list_len):
+    char_list_len = binlist_to_int(flat_visrep[:INIT_BIT_COUNT])
+    for i in range(INIT_BIT_COUNT, len(flat_visrep), char_list_len):
         letter_rep = flat_visrep[i:i+char_list_len]
         # Decode the character as a string
         letter = chr(binlist_to_int(letter_rep[:-1]))
