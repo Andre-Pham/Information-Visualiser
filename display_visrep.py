@@ -3,7 +3,6 @@
 # Import modules
 from PIL import Image, ImageDraw
 # Import complimenting scripts
-from text_to_visrep import *
 from constants import *
 
 def generate_visrep_png(visrep):
@@ -14,9 +13,9 @@ def generate_visrep_png(visrep):
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
     # Define the png canvas
-    visrep_display = Image.new('RGB', PNG_SIZE, color=BACKGROUND_COLOR)
+    canvas = Image.new('RGB', CANVAS_SIZE, color=BACKGROUND_COLOR)
     # Define modification layer of the png canvas
-    modify_display = ImageDraw.Draw(visrep_display)
+    canvas_draw = ImageDraw.Draw(canvas)
 
     def draw_block(color):
         '''
@@ -28,7 +27,7 @@ def generate_visrep_png(visrep):
         bot_left = (live_x, live_y + BLOCK_WIDTH)
         bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
         # Draw the block onto the canvas
-        modify_display.polygon(
+        canvas_draw.polygon(
             [top_left, top_right, bot_right, bot_left],
             fill=color,
             outline=None
@@ -37,11 +36,10 @@ def generate_visrep_png(visrep):
     # Loop through each row of the visrep
     for row in visrep:
         # Loop through each bit of each row
-        for block in row:
-            # If the bit is 0
-            if block == 0:
+        for bit in row:
+            # Draw block, with colour based on bit value
+            if bit == 0:
                 draw_block("white")
-            # If the bit is 1
             else:
                 draw_block("black")
 
@@ -54,9 +52,10 @@ def generate_visrep_png(visrep):
         live_y += BLOCK_WIDTH + BLOCK_GAP
 
     # Display the visrep png
-    visrep_display.show()
+    canvas.show()
 
 # Testing
 if __name__ == "__main__":
+    from text_to_visrep import *
     visrep = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
     generate_visrep_png(visrep)

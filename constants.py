@@ -17,4 +17,4 @@ BACKGROUND_COLOR = (138, 105, 243)
 START_X, START_Y = 150, 150
 
 # Define png size, in pixels
-PNG_SIZE = (1000, 1000)
+CANVAS_SIZE = (1000, 1000)
