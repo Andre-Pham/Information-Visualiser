@@ -1,38 +1,62 @@
+# Code to generate a visrep png from a visrep 2D matrix
+
+# Import modules
 from PIL import Image, ImageDraw
+# Import complimenting scripts
 from text_to_visrep import *
 from constants import *
 
-visrep = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
-live_x, live_y = 150, 150
+def generate_visrep_png(visrep):
+    '''
+    Generates and shows a png that represents a visrep via blocks that are
+    coloured black and white.
+    '''
+    # Define the location for the next block to be drawn
+    live_x, live_y = START_X, START_Y
+    # Define the png canvas
+    visrep_display = Image.new('RGB', PNG_SIZE, color=BACKGROUND_COLOR)
+    # Define modification layer of the png canvas
+    modify_display = ImageDraw.Draw(visrep_display)
 
-visrep_display = Image.new('RGB', (1000, 1000), color = (138, 105, 243))
-modify_display = ImageDraw.Draw(visrep_display)
+    # Loop through each row of the visrep
+    for row in visrep:
+        # Loop through each bit of each row
+        for block in row:
+            # If the bit is 0
+            if block == 0:
+                # Draw a white block onto the canvas
+                top_left = (live_x, live_y)
+                top_right = (live_x + BLOCK_WIDTH, live_y)
+                bot_left = (live_x, live_y + BLOCK_WIDTH)
+                bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
+                modify_display.polygon(
+                    [top_left, top_right, bot_right, bot_left],
+                    fill="white",
+                    outline=None
+                )
+                live_x += BLOCK_WIDTH + BLOCK_GAP
+            # If the bit is 1
+            else:
+                # Draw a black block onto the canvas
+                top_left = (live_x, live_y)
+                top_right = (live_x + BLOCK_WIDTH, live_y)
+                bot_left = (live_x, live_y + BLOCK_WIDTH)
+                bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
+                modify_display.polygon(
+                    [top_left, top_right, bot_right, bot_left],
+                    fill="black",
+                    outline=None
+                )
+                live_x += BLOCK_WIDTH + BLOCK_GAP
+        # Adjust the location of the x and y coordinates for the next row to be
+        # drawn
+        live_x = START_X
+        live_y += BLOCK_WIDTH + BLOCK_GAP
 
-for row in visrep:
-    for block in row:
-        if block == 0:
-            top_left = (live_x, live_y)
-            top_right = (live_x + BLOCK_WIDTH, live_y)
-            bot_left = (live_x, live_y + BLOCK_WIDTH)
-            bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
-            modify_display.polygon(
-                [top_left, top_right, bot_right, bot_left],
-                fill="white",
-                outline=None
-            )
-            live_x += BLOCK_WIDTH + BLOCK_GAP
-        else:
-            top_left = (live_x, live_y)
-            top_right = (live_x + BLOCK_WIDTH, live_y)
-            bot_left = (live_x, live_y + BLOCK_WIDTH)
-            bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
-            modify_display.polygon(
-                [top_left, top_right, bot_right, bot_left],
-                fill="black",
-                outline=None
-            )
-            live_x += BLOCK_WIDTH + BLOCK_GAP
-    live_x -= len(row)*(BLOCK_WIDTH + BLOCK_GAP)
-    live_y += BLOCK_WIDTH + BLOCK_GAP
+    # Display the visrep png
+    visrep_display.show()
 
-visrep_display.show()
+# Testing
+if __name__ == "__main__":
+    visrep = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
+    generate_visrep_png(visrep)
