@@ -1,4 +1,4 @@
-# Visual representation to text
+# Code to generate text from visual representations
 
 # Import complimenting scripts
 from text_to_visrep import *

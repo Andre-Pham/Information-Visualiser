@@ -1,4 +1,4 @@
-# Text to visual representation
+# Code to generate visual representation from text
 
 # Import modules
 import math
