@@ -2,6 +2,7 @@
 
 # Import complimenting scripts
 from text_to_visrep import *
+from constants import *
 
 def binlist_to_int(binlist):
     '''
@@ -17,14 +18,19 @@ def binlist_to_int(binlist):
 def decode_visrep(visrep):
     '''
     Generates the string from its visual representation, which is a 2D matrix
-    (nested lists) which olds 0s and 1s. Returns the string.
+    (nested lists) which holds 0s and 1s. Returns the string.
     '''
-    # Defines the string to be returned as a list
+    # Define the string to be returned as a list
     decoded_text = ""
-
+    # Define the visrep 2D matrix as a flattened list
     flat_visrep = [bit for row in visrep for bit in row]
+    # Define how many bits in a row represents a character
     char_list_len = binlist_to_int(flat_visrep[:INIT_BIT_COUNT])
+
+    # Loop through the index of the beginning of every group of bits which
+    # represent a character
     for i in range(INIT_BIT_COUNT, len(flat_visrep), char_list_len):
+        # Define the list of bits which represents a character
         letter_rep = flat_visrep[i:i+char_list_len]
         # Decode the character as a string
         letter = chr(binlist_to_int(letter_rep[:-1]))
@@ -34,7 +40,7 @@ def decode_visrep(visrep):
         # Add the character to the final string
         decoded_text += letter
 
-    # Return decoded_text_as_list as a string, which is the final decoded string
+    # Return the final decoded string
     return decoded_text
 
 # Testing
