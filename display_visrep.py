@@ -18,36 +18,36 @@ def generate_visrep_png(visrep):
     # Define modification layer of the png canvas
     modify_display = ImageDraw.Draw(visrep_display)
 
+    def draw_block(color):
+        '''
+        Draws coloured block (square) onto the canvas.
+        '''
+        # Define coordinates of each corner of the block
+        top_left = (live_x, live_y)
+        top_right = (live_x + BLOCK_WIDTH, live_y)
+        bot_left = (live_x, live_y + BLOCK_WIDTH)
+        bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
+        # Draw the block onto the canvas
+        modify_display.polygon(
+            [top_left, top_right, bot_right, bot_left],
+            fill=color,
+            outline=None
+        )
+
     # Loop through each row of the visrep
     for row in visrep:
         # Loop through each bit of each row
         for block in row:
             # If the bit is 0
             if block == 0:
-                # Draw a white block onto the canvas
-                top_left = (live_x, live_y)
-                top_right = (live_x + BLOCK_WIDTH, live_y)
-                bot_left = (live_x, live_y + BLOCK_WIDTH)
-                bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
-                modify_display.polygon(
-                    [top_left, top_right, bot_right, bot_left],
-                    fill="white",
-                    outline=None
-                )
-                live_x += BLOCK_WIDTH + BLOCK_GAP
+                draw_block("white")
             # If the bit is 1
             else:
-                # Draw a black block onto the canvas
-                top_left = (live_x, live_y)
-                top_right = (live_x + BLOCK_WIDTH, live_y)
-                bot_left = (live_x, live_y + BLOCK_WIDTH)
-                bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
-                modify_display.polygon(
-                    [top_left, top_right, bot_right, bot_left],
-                    fill="black",
-                    outline=None
-                )
-                live_x += BLOCK_WIDTH + BLOCK_GAP
+                draw_block("black")
+
+            # Adjust x coordinate for next block
+            live_x += BLOCK_WIDTH + BLOCK_GAP
+
         # Adjust the location of the x and y coordinates for the next row to be
         # drawn
         live_x = START_X
