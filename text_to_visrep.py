@@ -97,9 +97,3 @@ def generate_visrep(text):
 
     # Return the visual representation
     return visrep
-
-# Testing
-if __name__ == "__main__":
-    test = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
-    for row in test:
-        print(row)

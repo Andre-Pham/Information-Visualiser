@@ -53,9 +53,3 @@ def generate_visrep_png(visrep):
 
     # Display the visrep png
     canvas.show()
-
-# Testing
-if __name__ == "__main__":
-    from text_to_visrep import *
-    visrep = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
-    generate_visrep_png(visrep)
