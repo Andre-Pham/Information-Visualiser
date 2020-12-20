@@ -33,58 +33,47 @@ def generate_visrep_png(visrep):
             outline=None
         )
 
-    def draw_id_block(id_x, id_y):
-        canvas_draw.polygon(
-            [
-                (id_x, id_y),
-                (id_x + BLOCK_WIDTH, id_y),
-                (id_x + BLOCK_WIDTH, id_y + BLOCK_WIDTH),
-                (id_x, id_y + BLOCK_WIDTH)
-            ],
-            fill="white",
-            outline=None
-        )
-        canvas_draw.polygon(
-            [
-                (id_x, id_y),
-                (id_x + BLOCK_WIDTH/2, id_y),
-                (id_x + BLOCK_WIDTH/2, id_y + BLOCK_WIDTH/2),
-                (id_x, id_y + BLOCK_WIDTH/2)
-            ],
-            fill="black",
-            outline=None
-        )
-        canvas_draw.polygon(
-            [
-                (id_x + BLOCK_WIDTH/2 + 1, id_y + BLOCK_WIDTH/2 + 1),
-                (id_x + BLOCK_WIDTH, id_y + BLOCK_WIDTH/2 + 1),
-                (id_x + BLOCK_WIDTH, id_y + BLOCK_WIDTH),
-                (id_x + BLOCK_WIDTH/2 + 1, id_y + BLOCK_WIDTH)
-            ],
-            fill="black",
-            outline=None
-        )
+    def draw_id_block(id):
+        '''
+        Draws id block onto canvas.
+        If parameter id="I1", draws first id block with black squares "pointing"
+        to centre.
+        If parameter id="I2", draws second id block with black squares
+        "pointing" perpendicular to centre.
+        '''
+        # Colouring for first ID block, I1
+        if id == "I1":
+            color1 = "white"
+            color2 = "black"
+        # Colouring for second ID block, I2
+        else:
+            color1 = "black"
+            color2 = "white"
 
-    draw_id_block(START_X - BLOCK_WIDTH - 1, START_Y - BLOCK_WIDTH - 1)
-    draw_id_block(
-        START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1,
-        START_Y + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1
-    )
-
-    '''
-    top-right corner is black
-    bottom-left corner is white
-    '''
-    canvas_draw.polygon(
-        [
-            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1, START_Y - BLOCK_WIDTH - 1),
-            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + BLOCK_WIDTH + 1, START_Y - BLOCK_WIDTH - 1),
-            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + BLOCK_WIDTH + 1, START_Y - BLOCK_WIDTH - 1 + BLOCK_WIDTH),
-            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1, START_Y - BLOCK_WIDTH - 1 + BLOCK_WIDTH)
-        ],
-        fill="black",
-        outline=None
-    )
+        # Draw full sized block
+        draw_block(color1)
+        # Draw smaller block in top left of full block
+        canvas_draw.polygon(
+            [
+                (live_x, live_y),
+                (live_x + BLOCK_WIDTH/2, live_y),
+                (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2),
+                (live_x, live_y + BLOCK_WIDTH/2)
+            ],
+            fill=color2,
+            outline=None
+        )
+        # Draw smaller block in top right of full block
+        canvas_draw.polygon(
+            [
+                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2 + 1),
+                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2 + 1),
+                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH),
+                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH)
+            ],
+            fill=color2,
+            outline=None
+        )
 
     # Loop through each row of the visrep
     for row in visrep:
@@ -93,8 +82,10 @@ def generate_visrep_png(visrep):
             # Draw block, with colour based on bit value
             if bit == 0:
                 draw_block("white")
-            else:
+            elif bit == 1:
                 draw_block("black")
+            else:
+                draw_id_block(bit)
 
             # Adjust x coordinate for next block
             live_x += BLOCK_WIDTH + BLOCK_GAP
