@@ -70,22 +70,22 @@ def generate_visrep(text):
         INIT_BIT_COUNT
     )
 
-    # Loop through every letter of the input text
-    for order, letter in enumerate(text):
+    # Loop through every character of the input text
+    for order, char in enumerate(text):
         # Generate binary-list form of the number representation of the
         # character
-        num_representation = ord(letter.lower())
-        bin_letter_list = len_to_dyn(
+        num_representation = ord(char.lower())
+        bin_char_list = len_to_dyn(
             num_to_bin_list(num_representation),
             char_bits_len
         )
-        # Define is_capital as 0 if the letter isn't capital, and 1 if it is
+        # Define is_capital as 0 if the char isn't capital, and 1 if it is
         is_capital = 0
-        if letter.isupper():
+        if char.isupper():
             is_capital = 1
-        # Add the letter's visual representation to the final text's visual
+        # Add the character's visual representation to the final text's visual
         # representation
-        visrep_flat += bin_letter_list + [is_capital]
+        visrep_flat += bin_char_list + [is_capital]
 
     # Add the final blocks to make len(visrep_flat) a perfect square
     visrep_flat += extra_blocks
