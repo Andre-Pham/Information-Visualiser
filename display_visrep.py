@@ -33,6 +33,59 @@ def generate_visrep_png(visrep):
             outline=None
         )
 
+    def draw_id_block(id_x, id_y):
+        canvas_draw.polygon(
+            [
+                (id_x, id_y),
+                (id_x + BLOCK_WIDTH, id_y),
+                (id_x + BLOCK_WIDTH, id_y + BLOCK_WIDTH),
+                (id_x, id_y + BLOCK_WIDTH)
+            ],
+            fill="white",
+            outline=None
+        )
+        canvas_draw.polygon(
+            [
+                (id_x, id_y),
+                (id_x + BLOCK_WIDTH/2, id_y),
+                (id_x + BLOCK_WIDTH/2, id_y + BLOCK_WIDTH/2),
+                (id_x, id_y + BLOCK_WIDTH/2)
+            ],
+            fill="black",
+            outline=None
+        )
+        canvas_draw.polygon(
+            [
+                (id_x + BLOCK_WIDTH/2 + 1, id_y + BLOCK_WIDTH/2 + 1),
+                (id_x + BLOCK_WIDTH, id_y + BLOCK_WIDTH/2 + 1),
+                (id_x + BLOCK_WIDTH, id_y + BLOCK_WIDTH),
+                (id_x + BLOCK_WIDTH/2 + 1, id_y + BLOCK_WIDTH)
+            ],
+            fill="black",
+            outline=None
+        )
+
+    draw_id_block(START_X - BLOCK_WIDTH - 1, START_Y - BLOCK_WIDTH - 1)
+    draw_id_block(
+        START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1,
+        START_Y + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1
+    )
+
+    '''
+    top-right corner is black
+    bottom-left corner is white
+    '''
+    canvas_draw.polygon(
+        [
+            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1, START_Y - BLOCK_WIDTH - 1),
+            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + BLOCK_WIDTH + 1, START_Y - BLOCK_WIDTH - 1),
+            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + BLOCK_WIDTH + 1, START_Y - BLOCK_WIDTH - 1 + BLOCK_WIDTH),
+            (START_X + len(visrep)*BLOCK_WIDTH + (len(visrep) - 1)*BLOCK_GAP + 1, START_Y - BLOCK_WIDTH - 1 + BLOCK_WIDTH)
+        ],
+        fill="black",
+        outline=None
+    )
+
     # Loop through each row of the visrep
     for row in visrep:
         # Loop through each bit of each row
@@ -53,3 +106,4 @@ def generate_visrep_png(visrep):
 
     # Display the visrep png
     canvas.show()
+    canvas.save("test.png","PNG")

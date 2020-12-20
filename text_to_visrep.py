@@ -47,7 +47,7 @@ def generate_visrep(text):
 
     # Define how many blocks the visrep currently has (before adding zeros to
     # the end to make the block count a perfect square)
-    num_blocks = (char_bits_len + 1)*len(text) + INIT_BIT_COUNT
+    num_blocks = (char_bits_len + 1)*len(text) + INIT_BIT_COUNT + 2
 
     # Define the number of blocks (0s) to be added to make the total count a
     # perfect square
@@ -64,7 +64,7 @@ def generate_visrep(text):
 
     # Define the visual representation to be returned, starting with the number
     # of bits required to represent each character (in binary)
-    visrep_flat = len_to_dyn(
+    visrep_flat = ["I1"] + len_to_dyn(
         num_to_bin_list(char_bits_len + 1),
         INIT_BIT_COUNT
     )
@@ -94,6 +94,7 @@ def generate_visrep(text):
     row_len = math.isqrt(num_blocks)
     for i in range(0, num_blocks, row_len):
         visrep.append(visrep_flat[i:i+row_len])
+    visrep[-1].append("I2")
 
     # Return the visual representation
     return visrep
