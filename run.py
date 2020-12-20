@@ -21,7 +21,7 @@ window.configure(bg = BACKGROUND_COLOR)
 
 # Reaction functions
 def generate_visrep_button():
-    text_input = text_box.get('1.0', tk.END)
+    text_input = text_box.get('1.0', tk.END).strip("\n")
     visrep = generate_visrep(text_input)
     generate_visrep_png(visrep)
 
