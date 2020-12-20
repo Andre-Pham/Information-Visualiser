@@ -33,6 +33,48 @@ def generate_visrep_png(visrep):
             outline=None
         )
 
+    def draw_id_block(id):
+        '''
+        Draws id block onto canvas.
+        If parameter id="I1", draws first id block with black squares "pointing"
+        to centre.
+        If parameter id="I2", draws second id block with black squares
+        "pointing" perpendicular to centre.
+        '''
+        # Colouring for first ID block, I1
+        if id == "I1":
+            color1 = "white"
+            color2 = "black"
+        # Colouring for second ID block, I2
+        else:
+            color1 = "black"
+            color2 = "white"
+
+        # Draw full sized block
+        draw_block(color1)
+        # Draw smaller block in top left of full block
+        canvas_draw.polygon(
+            [
+                (live_x, live_y),
+                (live_x + BLOCK_WIDTH/2, live_y),
+                (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2),
+                (live_x, live_y + BLOCK_WIDTH/2)
+            ],
+            fill=color2,
+            outline=None
+        )
+        # Draw smaller block in top right of full block
+        canvas_draw.polygon(
+            [
+                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2 + 1),
+                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2 + 1),
+                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH),
+                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH)
+            ],
+            fill=color2,
+            outline=None
+        )
+
     # Loop through each row of the visrep
     for row in visrep:
         # Loop through each bit of each row
@@ -40,8 +82,10 @@ def generate_visrep_png(visrep):
             # Draw block, with colour based on bit value
             if bit == 0:
                 draw_block("white")
-            else:
+            elif bit == 1:
                 draw_block("black")
+            else:
+                draw_id_block(bit)
 
             # Adjust x coordinate for next block
             live_x += BLOCK_WIDTH + BLOCK_GAP
@@ -53,3 +97,4 @@ def generate_visrep_png(visrep):
 
     # Display the visrep png
     canvas.show()
+    canvas.save("test.png","PNG")
