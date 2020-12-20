@@ -24,11 +24,11 @@ def decode_visrep(visrep):
     # Define the visrep 2D matrix as a flattened list
     flat_visrep = [bit for row in visrep for bit in row]
     # Define how many bits in a row represents a character
-    char_bits_len = binlist_to_int(flat_visrep[:INIT_BIT_COUNT])
+    char_bits_len = binlist_to_int(flat_visrep[1:INIT_BIT_COUNT+1])
 
     # Loop through the index of the beginning of every group of bits which
     # represent a character
-    for i in range(INIT_BIT_COUNT, len(flat_visrep), char_bits_len):
+    for i in range(INIT_BIT_COUNT+1, len(flat_visrep)-1, char_bits_len):
         # Define the list of bits which represents a character
         char_bits = flat_visrep[i:i+char_bits_len]
         # Decode the character as a string
