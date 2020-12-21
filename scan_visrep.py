@@ -1,14 +1,36 @@
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 test_list = []
 chunk_pixels = 0
 img = Image.open("test.png")
 
 img_color = Image.Image.getdata(img).convert("P")
-for i in img_color:
-    if i != 205:
-        test_list.append(i)
+
+
+
+def find_identity():
+    im = Image.open ('test.png')
+    isize = im.size
+    identity = Image.open ('identity.png')
+    identity_size = identity.size
+    x0, y0 = identity_size [0] // 2, identity_size [1] // 2
+    pixel = identity.getpixel ( (x0, y0) ) [:-1]
+
+    def diff (a, b):
+        return sum ( (a - b) ** 2 for a, b in zip (a, b) )
+
+    best = (10000, 0, 0)
+    for x in range (isize [0] ):
+        for y in range (isize [1] ):
+            ipixel = im.getpixel ( (x, y) )
+            d = diff (ipixel, pixel)
+            if d < best [0]: best = (d, x, y)
+
+    draw = ImageDraw.Draw (im)
+    x, y = best [1:]
+    draw.rectangle ( (x - x0, y - y0, x + x0, y + y0), outline = 'red')
+    im.save ('out.png')
 
 def scan_visrep(color_list):
     #get the number of pixels per chunck
@@ -45,19 +67,21 @@ def scan_visrep(color_list):
         row_size += 1
         i += 1
 
+    #remove anything before identity
+    length.pop(0)
+
+
     #group the same rows together
     output = []
-    length.pop(0)
     grouped_list = list(zip(*[iter(length)]*row_size))
     for x in grouped_list:
         if x not in output:
             output.append(x)
-
+    print(length)
     return output
 
+find_identity()
 
-print(scan_visrep(test_list))
-print(img.width)
 '''
 black = (0, 0, 0, 255)
 white = (255, 255, 255, 255)
