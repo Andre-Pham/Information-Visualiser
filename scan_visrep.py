@@ -84,9 +84,10 @@ def scan_visrep(file_name):
     live_x = start_x
     live_y = start_y + step_size
 
-    for _ in range(block_in_row-2):
+    def create_block_row(range_values, live_x, live_y):
         block_row = []
-        for _ in range(block_in_row):
+        # Loop through every block in the given row
+        for _ in range(range_values):
             color = list(image[live_y][live_x])
             # White
             if color == [255, 255, 255]:
@@ -99,10 +100,23 @@ def scan_visrep(file_name):
                 print("ERROR DETECTED: NO BLACK OR WHITE FOUND")
                 scanned_visrep.append("ERROR")
             live_x += step_size
-        scanned_visrep.append(block_row)
+        return block_row
+
+    # Loop through every row
+    for _ in range(block_in_row-2):
+        scanned_visrep.append(create_block_row(block_in_row, live_x, live_y))
         live_x = start_x
         live_y += step_size
 
+    live_x = start_x + step_size
+    live_y = start_y
+    scanned_visrep.insert(0, ["I1"] + create_block_row(block_in_row-1, live_x, live_y))
+
+
+    live_x = start_x
+    live_y = start_y + step_size*(block_in_row - 1)
+    scanned_visrep.append(create_block_row(block_in_row-1, live_x, live_y) + ["I2"])
+    
     return scanned_visrep
 
 # Testing
