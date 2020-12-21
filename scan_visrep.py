@@ -48,7 +48,7 @@ def find_sizes(start_x, start_y, end_x, end_y, file_name):
     pixel_count = 0
     x = start_x + 1
     #find chunck size
-    while list(image[x][start_y]) == [255, 255, 255]:
+    while list(image[start_y][x]) == [255, 255, 255]:
         pixel_count += 1
         x += 1
 
@@ -56,7 +56,7 @@ def find_sizes(start_x, start_y, end_x, end_y, file_name):
 
     #find gap size
     pixel_count = 0
-    while list(image[x][start_y]) not in [[255, 255, 255], [0, 0, 0]]:
+    while list(image[start_y][x]) not in [[255, 255, 255], [0, 0, 0]]:
         pixel_count += 1
         x += 1
 
@@ -78,26 +78,34 @@ def scan_visrep(file_name):
 
     step_size = gap_size + chunk_size
 
-    live_x = start_x
-    live_y = start_y
-
     #find how many blocks in a row
     block_in_row = int((end_x - start_x)/(step_size) + 1)
 
-    for row in range(block_in_row-2):
-        for block in range(block_in_row):
-            live_step = block*step_size
-            scanned_visrep.append(list(image[live_x+step_size*row][live_y+live_step]))
+    live_x = start_x
+    live_y = start_y + step_size
 
-    print(scanned_visrep)
+    for _ in range(block_in_row-2):
+        block_row = []
+        for _ in range(block_in_row):
+            color = list(image[live_y][live_x])
+            # White
+            if color == [255, 255, 255]:
+                block_row.append(0)
+            # Black
+            elif color == [0, 0, 0]:
+                block_row.append(1)
+            # Error detector
+            else:
+                print("ERROR DETECTED: NO BLACK OR WHITE FOUND")
+                scanned_visrep.append("ERROR")
+            live_x += step_size
+        scanned_visrep.append(block_row)
+        live_x = start_x
+        live_y += step_size
 
-scan_visrep('test.png')
+    return scanned_visrep
 
-'''
-black = (0, 0, 0, 255)
-white = (255, 255, 255, 255)
-black = 0
-white = 225
-
-purple = 205
-'''
+# Testing
+if __name__ == "__main__":
+    for i in scan_visrep('test.png'):
+        print(i)
