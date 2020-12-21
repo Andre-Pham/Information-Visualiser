@@ -42,12 +42,15 @@ def generate_visrep(text):
     '''
     # Determine how many bits is required to represent each character
     all_ascii_used = [ord(char.lower()) for char in text]
-    max_ascii = max(all_ascii_used)
-    char_bits_len = len(bin(max_ascii)) - 2
+    try:
+        max_ascii = max(all_ascii_used)
+        char_bits_len = len(bin(max_ascii)) - 2
+    except:
+        char_bits_len = 0
 
     # Define how many blocks the visrep currently has (before adding zeros to
     # the end to make the block count a perfect square)
-    num_blocks = (char_bits_len + 1)*len(text) + INIT_BIT_COUNT
+    num_blocks = (char_bits_len + 1)*len(text) + INIT_BIT_COUNT + 2
 
     # Define the number of blocks (0s) to be added to make the total count a
     # perfect square
@@ -62,29 +65,30 @@ def generate_visrep(text):
     # count a perfect square
     extra_blocks = [0 for _ in range(num_extra_blocks)]
 
-    # Define the visual representation to be returned, starting with the number
-    # of bits required to represent each character (in binary)
-    visrep_flat = len_to_dyn(
+    # Define the visual representation to be returned, starting with the
+    # identity block, then the the number of bits required to represent each
+    # character (in binary)
+    visrep_flat = ["I1"] + len_to_dyn(
         num_to_bin_list(char_bits_len + 1),
         INIT_BIT_COUNT
     )
 
-    # Loop through every letter of the input text
-    for order, letter in enumerate(text):
+    # Loop through every character of the input text
+    for order, char in enumerate(text):
         # Generate binary-list form of the number representation of the
         # character
-        num_representation = ord(letter.lower())
-        bin_letter_list = len_to_dyn(
+        num_representation = ord(char.lower())
+        bin_char_list = len_to_dyn(
             num_to_bin_list(num_representation),
             char_bits_len
         )
-        # Define is_capital as 0 if the letter isn't capital, and 1 if it is
+        # Define is_capital as 0 if the char isn't capital, and 1 if it is
         is_capital = 0
-        if letter.isupper():
+        if char.isupper():
             is_capital = 1
-        # Add the letter's visual representation to the final text's visual
+        # Add the character's visual representation to the final text's visual
         # representation
-        visrep_flat += bin_letter_list + [is_capital]
+        visrep_flat += bin_char_list + [is_capital]
 
     # Add the final blocks to make len(visrep_flat) a perfect square
     visrep_flat += extra_blocks
@@ -94,6 +98,8 @@ def generate_visrep(text):
     row_len = math.isqrt(num_blocks)
     for i in range(0, num_blocks, row_len):
         visrep.append(visrep_flat[i:i+row_len])
+    # Add second identity block
+    visrep[-1].append("I2")
 
     # Return the visual representation
     return visrep
