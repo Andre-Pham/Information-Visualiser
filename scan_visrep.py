@@ -116,10 +116,14 @@ def scan_visrep(file_name):
     live_x = start_x
     live_y = start_y + step_size*(block_in_row - 1)
     scanned_visrep.append(create_block_row(block_in_row-1, live_x, live_y) + ["I2"])
-    
+
     return scanned_visrep
 
 # Testing
 if __name__ == "__main__":
     for i in scan_visrep('test.png'):
         print(i)
+
+    visrep = scan_visrep('test.png')
+    from visrep_to_text import *
+    print(decode_visrep(visrep))
