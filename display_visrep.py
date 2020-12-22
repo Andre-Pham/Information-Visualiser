@@ -5,10 +5,12 @@ from PIL import Image, ImageDraw
 # Import complimenting scripts
 from constants import *
 
-def generate_visrep_png(visrep):
+def generate_visrep_png(visrep, option):
     '''
     Generates and shows a png that represents a visrep via blocks that are
     coloured black and white.
+    Option is a string. If option == "show", the image is shown as a png. If
+    option is a directory, the image is saved to that directory.
     '''
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
@@ -96,5 +98,7 @@ def generate_visrep_png(visrep):
         live_y += BLOCK_WIDTH + BLOCK_GAP
 
     # Display the visrep png
-    canvas.show()
-    canvas.save("test.png","PNG")
+    if option == "show":
+        canvas.show()
+    else:
+        canvas.save(option, "PNG")
