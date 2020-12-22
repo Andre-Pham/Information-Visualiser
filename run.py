@@ -25,6 +25,9 @@ class Interface:
         window.title(title)
         window.configure(bg = bg)
 
+        window.grid_rowconfigure(0, weight=0)
+        window.grid_columnconfigure(0, weight=1)
+
         self.main_menu_elements = [
             tk.Label(
                 window,
@@ -108,8 +111,12 @@ class Interface:
         self.clear_all()
         self.drawn_elements = []
 
-        for elmt in self.main_menu_elements:
-            elmt.pack()
+        for order, elmt in enumerate(self.main_menu_elements):
+            elmt.grid(
+                pady = 5,
+                row = order,
+                column = 0
+            )
             self.drawn_elements.append(elmt)
 
     def draw_gen_visrep(self):
