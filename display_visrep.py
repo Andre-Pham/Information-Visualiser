@@ -15,7 +15,7 @@ def generate_visrep_png(visrep, option):
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
     # Define the png canvas
-    canvas = Image.new('RGB', CANVAS_SIZE, color=BACKGROUND_COLOR)
+    canvas = Image.new('RGB', CANVAS_SIZE, color=VISREP_COLOR)
     # Define modification layer of the png canvas
     canvas_draw = ImageDraw.Draw(canvas)
 

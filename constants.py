@@ -11,7 +11,7 @@ BLOCK_GAP = BLOCK_WIDTH/3
 INIT_BIT_COUNT = 4
 
 # Define RGB background colour for displaying visrep png
-BACKGROUND_COLOR = (138, 105, 243)
+VISREP_COLOR = (138, 105, 243)
 
 # Define top-left starting pixel coordinate for visrep png
 START_X, START_Y = 150, 150
