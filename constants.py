@@ -18,3 +18,14 @@ START_X, START_Y = 150, 150
 
 # Define png size, in pixels
 CANVAS_SIZE = (1000, 1000)
+
+# Define aesthetic interface constants
+BACKGROUND_COLOR = "white"
+TEXT_COLOR = "black"
+TEXT_COLOR_HIGHLIGHT = "white"
+TEXTBOX_COLOR = "#d0d0d0"
+BUTTON_COLOR = "#8a69f3"
+FONT = "System"
+SUCCESS_COLOR = "#22c95d"
+FAIL_COLOR = "#ee4f4f"
+BUTTON_WIDTH = 14
