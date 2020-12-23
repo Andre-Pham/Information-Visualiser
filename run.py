@@ -2,6 +2,7 @@
 # Import modules
 import tkinter as tk
 from tkinter import filedialog
+import sys
 # Import complimenting scripts
 from display_visrep import *
 from text_to_visrep import *
@@ -273,6 +274,19 @@ class Interface:
         '''
         Allows the user to select a directory to save a visrep png to.
         '''
+        if sys.platform.startswith("win32"):
+            # Windows
+            banned_char = "<>:\"/\|?*"
+        elif sys.platform.startswith("linux"):
+            # Linux
+            banned_char = "/"
+        elif sys.platform.startswith("darwin"):
+            # MacOS
+            banned_char = ":"
+        else:
+            banned_char = []
+        for char in banned_char:
+            save_name = save_name.replace(char, "#")
         return filedialog.asksaveasfilename(
             initialdir="/",
             title="Select directory",
