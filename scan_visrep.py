@@ -61,11 +61,11 @@ def find_sizes(start_x, start_y, file_name):
 
     # Because of soft edges, just to be safe
     #SAFETY_NET = 1
-    live_x# += SAFETY_NET
+    #live_x += SAFETY_NET
 
     # Find chunk size
     pixel_count = 1
-    while check_color_change(live_x, live_y, live_x+1, live_y) == False:
+    while check_color_change(live_x, live_y, live_x+1, live_y) == False or pixel_count <= 4:
         live_x += 1
         pixel_count += 1
 
@@ -73,7 +73,14 @@ def find_sizes(start_x, start_y, file_name):
 
     # Find gap size via ratios
     '''ADJUST THIS WHEN constants.py BLOCK_GAP and BLOCK_WIDTH are fixed; remove "- 1" and "+ 1".'''
-    gap_size = int((BLOCK_GAP - 1)/(BLOCK_WIDTH + 1) * chunk_size)
+    #gap_size = int((BLOCK_GAP - 1)/(BLOCK_WIDTH + 1) * chunk_size)
+
+    pixel_count = 1
+    live_x += 1
+    while check_color_change(live_x, live_y, live_x+1, live_y) == False or pixel_count <= 2:
+        live_x += 1
+        pixel_count += 1
+    gap_size = pixel_count
 
     return chunk_size, gap_size
 
@@ -142,8 +149,21 @@ def scan_visrep(file_name):
     live_x = id1_x
     live_y = id1_y + step_size
 
+    def check_color_change(x1, y1, x2, y2):
+        # If the pixels at (x1, y1) and (x2, y2) are close in brightness
+        if abs(sum(list(image[y1][x1])) - sum(list(image[y2][x2]))) < RGB_THRESHOLD:
+            # Return False
+            return False
+        # If the pixels are not close enough in brightness, return True
+        return True
+
     def create_block_row(range_values, live_x, live_y):
+
+
+
         block_row = []
+        sum_adjust_x = 0
+        sum_adjust_y = 0
         # Loop through every block in the given row
         for _ in range(range_values):
             color = list(image[live_y][live_x])
@@ -166,22 +186,83 @@ def scan_visrep(file_name):
             else:
                 print("ERROR DETECTED: NO BLACK OR WHITE FOUND")
                 scanned_visrep.append("ERROR")
-            live_x += step_size
-            live_y += vertical_adjust
-        return block_row
+
+            # ADJUST to centre again
+            temp_x = live_x
+            pixel_count = 0
+            while check_color_change(temp_x, live_y, temp_x+1, live_y) == False:
+                temp_x += 1
+                pixel_count += 1
+            adjust_x = int(pixel_count - chunk_size/2)
+
+            temp_y = live_y
+            pixel_count = 0
+            while check_color_change(live_x, temp_y, live_x, temp_y+1) == False:
+                temp_y += 1
+                pixel_count += 1
+            adjust_y = int(pixel_count - chunk_size/2)
+
+            #print(target_png)
+            # Step 3: Draw the rectangle on large_image
+            cv2.rectangle(visrep_image, (live_x-3+adjust_x, live_y-3+adjust_y), (live_x+3+adjust_x, live_y+3+adjust_y), (0,255,0), 2)
+            # Display the original image with the rectangle around the match.
+            cv2.imshow('output',visrep_image)
+            # The image is only displayed if we call this
+            cv2.waitKey(0)
+
+            print(f"adjusted x: {adjust_x}")
+            print(f"adjusted y: {adjust_y}")
+
+            live_x += step_size + adjust_x
+            live_y += vertical_adjust + adjust_y
+
+            sum_adjust_x += adjust_x
+            sum_adjust_y += adjust_y
+        return block_row, sum_adjust_x, sum_adjust_y
 
     # Loop through every row
     for _ in range(block_in_row-2):
-        scanned_visrep.append(create_block_row(block_in_row, live_x, live_y))
-        live_y += step_size
+        block_row, sum_adjust_x, sum_adjust_y = create_block_row(block_in_row, live_x, live_y)
+        scanned_visrep.append(block_row)
+        #print(sum_adjust_y)
+        #print(int(sum_adjust_y/block_in_row))
+        live_y += step_size# + int(sum_adjust_y/block_in_row)
+
+        #print(target_png)
+        # Step 3: Draw the rectangle on large_image
+        cv2.rectangle(visrep_image, (live_x-3, live_y-3), (live_x+3, live_y+3), (255,0,0), 2)
+        # Display the original image with the rectangle around the match.
+        cv2.imshow('output',visrep_image)
+        # The image is only displayed if we call this
+        cv2.waitKey(0)
+
+        temp_y = live_y
+        pixel_count = 0
+        while check_color_change(live_x, temp_y, live_x, temp_y+1) == False:
+            temp_y += 1
+            pixel_count += 1
+        adjust_y = int(pixel_count - chunk_size/2)
+
+        live_y += adjust_y
+
+        temp_x = live_x
+        pixel_count = 0
+        while check_color_change(temp_x, live_y, temp_x+1, live_y) == False:
+            temp_x += 1
+            pixel_count += 1
+        adjust_x = int(pixel_count - chunk_size/2)
+
+        live_x += adjust_x
+
+
 
     live_x = id1_x + step_size
     live_y = id1_y
-    scanned_visrep.insert(0, ["I1"] + create_block_row(block_in_row-2, live_x, live_y) + ["I2"])
+    scanned_visrep.insert(0, ["I1"] + create_block_row(block_in_row-2, live_x, live_y)[0] + ["I2"])
 
     live_x = id1_x + step_size
     live_y = id1_y + step_size*(block_in_row - 1)
-    scanned_visrep.append(["I3"] + create_block_row(block_in_row-2, live_x, live_y) + ["I4"])
+    scanned_visrep.append(["I3"] + create_block_row(block_in_row-2, live_x, live_y)[0] + ["I4"])
 
     return scanned_visrep
 

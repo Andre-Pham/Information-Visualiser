@@ -239,21 +239,23 @@ class Interface:
         Generates text from a visrep image file, selected via file explorer.
         Activates from "Select Image" button.
         '''
-        try:
-            visrep_image = self.select_image()
-            visrep_matrix = scan_visrep(visrep_image)
-            text_output = decode_visrep(visrep_matrix)
-            self.live_text_box.config(
-                text=text_output,
-                bg=SUCCESS_COLOR,
-                fg=TEXT_COLOR_HIGHLIGHT
-            )
-        except:
+        #try:
+        visrep_image = self.select_image()
+        visrep_matrix = scan_visrep(visrep_image)
+        text_output = decode_visrep(visrep_matrix)
+        self.live_text_box.config(
+            text=text_output,
+            bg=SUCCESS_COLOR,
+            fg=TEXT_COLOR_HIGHLIGHT
+        )
+        '''
+        #except:
             self.live_text_box.config(
                 text="ERROR: Scan unsuccessful.",
                 bg=FAIL_COLOR,
                 fg=TEXT_COLOR_HIGHLIGHT
             )
+        '''
 
     # FUNCTIONS THAT SUPPORT FILE SELECTION
 
