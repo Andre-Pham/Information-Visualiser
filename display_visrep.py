@@ -43,39 +43,41 @@ def generate_visrep_png(visrep, option):
         If parameter id="I2", draws second id block with black squares
         "pointing" perpendicular to centre.
         '''
-        # Colouring for first ID block, I1
-        if id == "I1":
+        # Colouring for fourth ID block, I4
+        if id == "I4":
             color1 = "white"
             color2 = "black"
-        # Colouring for second ID block, I2
+        # Colouring for either the first, second or third ID block, I1, I2, I3
         else:
             color1 = "black"
             color2 = "white"
 
         # Draw full sized block
         draw_block(color1)
-        # Draw smaller block in top left of full block
-        canvas_draw.polygon(
-            [
-                (live_x, live_y),
-                (live_x + BLOCK_WIDTH/2, live_y),
-                (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2),
-                (live_x, live_y + BLOCK_WIDTH/2)
-            ],
-            fill=color2,
-            outline=None
-        )
-        # Draw smaller block in top right of full block
-        canvas_draw.polygon(
-            [
-                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2 + 1),
-                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2 + 1),
-                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH),
-                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH)
-            ],
-            fill=color2,
-            outline=None
-        )
+        if id != "I2":
+            # Draw smaller block in top right of full block
+            canvas_draw.polygon(
+                [
+                    (live_x + BLOCK_WIDTH/2 + 1, live_y),
+                    (live_x + BLOCK_WIDTH, live_y),
+                    (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2),
+                    (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2)
+                ],
+                fill=color2,
+                outline=None
+            )
+        if id != "I3":
+            # Draw smaller block in bottom left of full block
+            canvas_draw.polygon(
+                [
+                    (live_x, live_y + BLOCK_WIDTH/2 + 1),
+                    (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2 + 1),
+                    (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH),
+                    (live_x, live_y + BLOCK_WIDTH)
+                ],
+                fill=color2,
+                outline=None
+            )
 
     # Loop through each row of the visrep
     for row in visrep:

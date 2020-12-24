@@ -50,7 +50,7 @@ def generate_visrep(text):
 
     # Define how many blocks the visrep currently has (before adding zeros to
     # the end to make the block count a perfect square)
-    num_blocks = (char_bits_len + 1)*len(text) + INIT_BIT_COUNT + 2
+    num_blocks = (char_bits_len + 1)*len(text) + INIT_BIT_COUNT + 4
 
     # Define the number of blocks (0s) to be added to make the total count a
     # perfect square
@@ -68,13 +68,15 @@ def generate_visrep(text):
     # Define the visual representation to be returned, starting with the
     # identity block, then the the number of bits required to represent each
     # character (in binary)
-    visrep_flat = ["I1"] + len_to_dyn(
+    visrep_flat = len_to_dyn(
         num_to_bin_list(char_bits_len + 1),
         INIT_BIT_COUNT
     )
+    # Define row length
+    row_len = math.isqrt(num_blocks)
 
     # Loop through every character of the input text
-    for order, char in enumerate(text):
+    for char in text:
         # Generate binary-list form of the number representation of the
         # character
         num_representation = ord(char.lower())
@@ -90,16 +92,19 @@ def generate_visrep(text):
         # representation
         visrep_flat += bin_char_list + [is_capital]
 
-    # Add the final blocks to make len(visrep_flat) a perfect square
+    # Add first two identity blocks
+    visrep_flat.insert(0, "I1")
+    visrep_flat.insert(row_len-1, "I2")
+    # Add the extra blocks to make len(visrep_flat) a perfect square
     visrep_flat += extra_blocks
+    # Add last two identity blocks
+    visrep_flat.insert(num_blocks-row_len, "I3")
+    visrep_flat.append("I4")
 
     # Create visrep as a 2D matrix with equal rows and columns
     visrep = []
-    row_len = math.isqrt(num_blocks)
     for i in range(0, num_blocks, row_len):
         visrep.append(visrep_flat[i:i+row_len])
-    # Add second identity block
-    visrep[-1].append("I2")
 
     # Return the visual representation
     return visrep
