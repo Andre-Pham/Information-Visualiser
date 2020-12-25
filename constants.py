@@ -36,3 +36,9 @@ FONT = "System"
 SUCCESS_COLOR = "#22c95d"
 FAIL_COLOR = "#ee4f4f"
 BUTTON_WIDTH = 14
+
+# Define directory of identity block reference images
+DIR_ID1 = "identity1.png"
+DIR_ID2 = "identity2.png"
+DIR_ID3 = "identity3.png"
+DIR_ID4 = "identity4.png"
