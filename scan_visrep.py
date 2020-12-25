@@ -157,15 +157,18 @@ def scan_visrep(file_name):
         # If the pixels are not close enough in brightness, return True
         return True
 
-    def create_block_row(range_values, live_x, live_y):
+    def create_block_row(identity_row, live_x, live_y):
 
 
 
         block_row = []
         sum_adjust_x = 0
         sum_adjust_y = 0
+        furthest_id_x = max([id2_x, id4_x])
         # Loop through every block in the given row
-        for _ in range(range_values):
+        if identity_row:
+            furthest_id_x -= chunk_size
+        while live_x < furthest_id_x+int(chunk_size/2):
             color = list(image[live_y][live_x])
 
             #print(target_png)
@@ -190,17 +193,29 @@ def scan_visrep(file_name):
             # ADJUST to centre again
             temp_x = live_x
             pixel_count = 0
+            visrep_edge = False
             while check_color_change(temp_x, live_y, temp_x+1, live_y) == False:
                 temp_x += 1
                 pixel_count += 1
+                if pixel_count > chunk_size:
+                    visrep_edge = True
+                    break
             adjust_x = int(pixel_count - chunk_size/2)
+            if visrep_edge == True:
+                adjust_x = 0
 
             temp_y = live_y
             pixel_count = 0
+            visrep_edge = False
             while check_color_change(live_x, temp_y, live_x, temp_y+1) == False:
                 temp_y += 1
                 pixel_count += 1
+                if pixel_count > chunk_size:
+                    visrep_edge = True
+                    break
             adjust_y = int(pixel_count - chunk_size/2)
+            if visrep_edge == True:
+                adjust_y = 0
 
             #print(target_png)
             # Step 3: Draw the rectangle on large_image
@@ -220,13 +235,17 @@ def scan_visrep(file_name):
             sum_adjust_y += adjust_y
         return block_row, sum_adjust_x, sum_adjust_y
 
+    #furthest_id_y = max([id3_y, id4_y])
     # Loop through every row
-    for _ in range(block_in_row-2):
-        block_row, sum_adjust_x, sum_adjust_y = create_block_row(block_in_row, live_x, live_y)
+    while True:
+        block_row, sum_adjust_x, sum_adjust_y = create_block_row(False, live_x, live_y)
         scanned_visrep.append(block_row)
         #print(sum_adjust_y)
         #print(int(sum_adjust_y/block_in_row))
         live_y += step_size# + int(sum_adjust_y/block_in_row)
+
+        if live_y >= id3_y-int(chunk_size/2):
+            break
 
         #print(target_png)
         # Step 3: Draw the rectangle on large_image
@@ -258,11 +277,11 @@ def scan_visrep(file_name):
 
     live_x = id1_x + step_size
     live_y = id1_y
-    scanned_visrep.insert(0, ["I1"] + create_block_row(block_in_row-2, live_x, live_y)[0] + ["I2"])
+    scanned_visrep.insert(0, ["I1"] + create_block_row(True, live_x, live_y)[0] + ["I2"])
 
-    live_x = id1_x + step_size
-    live_y = id1_y + step_size*(block_in_row - 1)
-    scanned_visrep.append(["I3"] + create_block_row(block_in_row-2, live_x, live_y)[0] + ["I4"])
+    live_x = id3_x + step_size
+    live_y = id3_y
+    scanned_visrep.append(["I3"] + create_block_row(True, live_x, live_y)[0] + ["I4"])
 
     return scanned_visrep
 
