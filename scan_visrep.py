@@ -1,5 +1,9 @@
 import cv2
 from constants import *
+from PIL import Image, ImageEnhance, ImageStat
+import numpy as np
+
+dev_image = None
 
 def draw_rectangle(cv2_image, x, y, width, height, RGB_color, show):
     '''
@@ -59,7 +63,7 @@ def find_identity(cv2_visrep, cv2_target):
     start_x = int((4*match_x + target_width)/4)
     start_y = int((4*match_y + target_height)/4)
 
-    draw_rectangle(cv2_visrep, match_x, match_y, target_width, target_height, (0,0,255), False)
+    draw_rectangle(dev_image, match_x, match_y, target_width, target_height, (0,0,255), False)
 
     return identity_x, identity_y, start_x, start_y
 
@@ -188,6 +192,25 @@ def crop_image(cv2_image):
     # Return the cropped image
     return cv2_image[padding:padding+new_length, padding:padding+new_length]
 
+def define_enhance_image(file_name):
+    PIL_image = Image.open(file_name)
+
+    brightness_avg = ImageStat.Stat(PIL_image.convert("L")).mean[0]
+    print(brightness_avg)
+
+    if brightness_avg >= 160:
+        brightness_adjust = -0.2
+    elif brightness_avg <= 125:
+        brightness_adjust = 0.3
+    else:
+        brightness_adjust = 0
+
+    enhancer = ImageEnhance.Brightness(PIL_image)
+    PIL_image = enhancer.enhance(1.2 + brightness_adjust)
+    enhancer = ImageEnhance.Contrast(PIL_image)
+    PIL_image = enhancer.enhance(1.5)
+    return PIL_image
+
 def scan_visrep(file_name):
     '''
     Scans a given image file's visrep, and returns the 2D matrix representation
@@ -202,7 +225,9 @@ def scan_visrep(file_name):
     # Read the image
     visrep_image = cv2.imread(file_name)
     # Define developer preview of the image
-    dev_image = cv2.imread(file_name)
+    global dev_image
+    dev_image = define_enhance_image(file_name)
+    dev_image = cv2.cvtColor(np.array(dev_image), cv2.COLOR_RGB2BGR)
     # Define the final 2D matrix to be returned
     scanned_visrep = []
 
@@ -218,10 +243,10 @@ def scan_visrep(file_name):
         # Define the centre (id#_x, id#_y) of each identity block, as well as
         # start_x and start_y, which are the starting points for finding
         # the gap size and chunk size
-        id1_x, id1_y, start_x, start_y = find_identity(dev_image, target_image1)
-        id2_x, id2_y, _, _ = find_identity(dev_image, target_image2)
-        id3_x, id3_y, _, _ = find_identity(dev_image, target_image3)
-        id4_x, id4_y, _, _ = find_identity(dev_image, target_image4)
+        id1_x, id1_y, start_x, start_y = find_identity(visrep_image, target_image1)
+        id2_x, id2_y, _, _ = find_identity(visrep_image, target_image2)
+        id3_x, id3_y, _, _ = find_identity(visrep_image, target_image3)
+        id4_x, id4_y, _, _ = find_identity(visrep_image, target_image4)
 
         # Determines if the defined positions of the identity blocks form a
         # square (and hence the identity block locations found are valid)
@@ -240,6 +265,9 @@ def scan_visrep(file_name):
         target_image2 = crop_image(target_image2)
         target_image3 = crop_image(target_image3)
         target_image4 = crop_image(target_image4)
+
+    visrep_image = define_enhance_image(file_name)
+    visrep_image = cv2.cvtColor(np.array(visrep_image), cv2.COLOR_RGB2BGR)
 
     # Calculate chunk size and gap size
     chunk_size, gap_size = find_sizes(start_x, start_y, visrep_image)

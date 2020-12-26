@@ -20,7 +20,7 @@ START_X, START_Y = 150, 150
 CANVAS_SIZE = (1000, 1000)
 
 # Define minimum RGB value difference for the sum of R, G and B to be treated as
-# a different colour
+# a different colour (smaller = more sensitive to differences)
 RGB_THRESHOLD = 95
 
 # Define brightness threshold
