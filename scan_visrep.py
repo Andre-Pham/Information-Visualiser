@@ -63,7 +63,7 @@ def find_identity(cv2_visrep, cv2_target):
     start_x = int((4*match_x + target_width)/4)
     start_y = int((4*match_y + target_height)/4)
 
-    draw_rectangle(dev_image, match_x, match_y, target_width, target_height, (0,0,255), False)
+    draw_rectangle(dev_image, match_x, match_y, target_width, target_height, (0,0,255), True)
 
     return identity_x, identity_y, start_x, start_y
 
@@ -196,8 +196,6 @@ def define_enhance_image(file_name):
     PIL_image = Image.open(file_name)
 
     brightness_avg = ImageStat.Stat(PIL_image.convert("L")).mean[0]
-    print(brightness_avg)
-
     if brightness_avg >= 160:
         brightness_adjust = -0.2
     elif brightness_avg <= 125:
@@ -224,10 +222,22 @@ def scan_visrep(file_name):
     '''
     # Read the image
     visrep_image = cv2.imread(file_name)
+
+    height, width, _ = visrep_image.shape
+    max_length = max([width, height])
+    if max_length > MAX_LENGTH:
+        scale = MAX_LENGTH/max_length
+        new_width = int(width*scale)
+        new_height = int(height*scale)
+        visrep_image = cv2.resize(visrep_image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
     # Define developer preview of the image
     global dev_image
     dev_image = define_enhance_image(file_name)
     dev_image = cv2.cvtColor(np.array(dev_image), cv2.COLOR_RGB2BGR)
+    if max_length > MAX_LENGTH:
+        dev_image = cv2.resize(dev_image, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
     # Define the final 2D matrix to be returned
     scanned_visrep = []
 
@@ -268,6 +278,8 @@ def scan_visrep(file_name):
 
     visrep_image = define_enhance_image(file_name)
     visrep_image = cv2.cvtColor(np.array(visrep_image), cv2.COLOR_RGB2BGR)
+    if max_length > MAX_LENGTH:
+        visrep_image = cv2.resize(visrep_image, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
     # Calculate chunk size and gap size
     chunk_size, gap_size = find_sizes(start_x, start_y, visrep_image)
@@ -313,15 +325,17 @@ def scan_visrep(file_name):
         furthest_id_x = max([id2_x, id4_x])
         # If it's an identity row, reduce the length needed to be scanned for
         # blocks by a chunk (by a block)
-        if identity_row:
-            furthest_id_x -= chunk_size
+        if identity_row == "TOP":
+            furthest_id_x = id2_x - chunk_size
+        elif identity_row == "BOTTOM":
+            furthest_id_x = id4_x - chunk_size
         # Loop until live_x reaches further than the furthest side of an
         # identity block
         while live_x < furthest_id_x+int(chunk_size/2):
             # Determine the colour at the current live coordinates (first block)
             color = list(visrep_image[live_y][live_x])
 
-            draw_rectangle(dev_image, live_x-3, live_y-3, 6, 6, (0,0,255), False)
+            draw_rectangle(dev_image, live_x-3, live_y-3, 6, 6, (0,0,255), True)
 
             # If the colour is bright, assume white, and add it to block row
             if sum(color) > BRIGHTNESS_THRESHOLD:
@@ -380,7 +394,7 @@ def scan_visrep(file_name):
             if visrep_edge == True:
                 adjust_y = 0
 
-            draw_rectangle(dev_image, live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), False)
+            draw_rectangle(dev_image, live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), True)
 
             # Adjust live_x to the horizontal centre of the block which was
             # just read
@@ -404,7 +418,7 @@ def scan_visrep(file_name):
         if live_y >= id3_y-int(chunk_size/2):
             break
 
-        draw_rectangle(dev_image, live_x-3, live_y-3, 6, 6, (255,0,0), False)
+        draw_rectangle(dev_image, live_x-3, live_y-3, 6, 6, (255,0,0), True)
 
         # Adjust live_x to the horizontal centre of the block which was
         # just read (the starting block of the new row to be scanned)
@@ -431,14 +445,14 @@ def scan_visrep(file_name):
     live_x = id1_x + step_size
     live_y = id1_y
     # Generate and append the top identity block row
-    scanned_visrep.insert(0, ["I1"] + create_block_row(True, live_x, live_y) + ["I2"])
+    scanned_visrep.insert(0, ["I1"] + create_block_row("TOP", live_x, live_y) + ["I2"])
 
     # Redefine live x and y to be at the estimated centre of the first block
     # of the bottom identity row
     live_x = id3_x + step_size
     live_y = id3_y
     # Generate and append the bottom identity block row
-    scanned_visrep.append(["I3"] + create_block_row(True, live_x, live_y) + ["I4"])
+    scanned_visrep.append(["I3"] + create_block_row("BOTTOM", live_x, live_y) + ["I4"])
 
     draw_rectangle(dev_image, 0, 0, 0, 0, (0, 0, 0), True)
 

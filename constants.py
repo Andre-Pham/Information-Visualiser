@@ -26,6 +26,9 @@ RGB_THRESHOLD = 95
 # Define brightness threshold
 BRIGHTNESS_THRESHOLD = 127.5
 
+# Define max length for an image before it's resized
+MAX_LENGTH = 1200
+
 # Define aesthetic interface constants
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"

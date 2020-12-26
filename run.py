@@ -257,6 +257,7 @@ class Interface:
             )
         '''
 
+
     # FUNCTIONS THAT SUPPORT FILE SELECTION
 
     def select_image(self):
