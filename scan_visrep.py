@@ -83,12 +83,45 @@ def check_color_change(cv2_image, x1, y1, x2, y2):
         If the two pixels are considered different colours, returns True.
         Otherwise, returns False.
     '''
+    print(f"{list(cv2_image[y1][x1])} - {sum(list(cv2_image[y1][x1]))}")
+    print(f"{list(cv2_image[y2][x2])} - {sum(list(cv2_image[y2][x2]))}")
     # If the pixels at (x1, y1) and (x2, y2) are close in brightness
     if abs(sum(list(cv2_image[y1][x1])) - sum(list(cv2_image[y2][x2]))) < RGB_THRESHOLD:
         # Return False
+        print('----')
         return False
+    print('COLOUR CHANGE DETECTED')
+    print('----')
     # If the pixels are not close enough in brightness, return True
     return True
+
+def find_largest_contrast(cv2_image, coord1, coord2, coord3, coord4):
+    '''
+    Note: coords are lists with len() of 2
+    '''
+    coord1_color = sum(list(cv2_image[coord1[1]][coord1[0]]))
+    coord2_color = sum(list(cv2_image[coord2[1]][coord2[0]]))
+    coord3_color = sum(list(cv2_image[coord3[1]][coord3[0]]))
+    coord4_color = sum(list(cv2_image[coord4[1]][coord4[0]]))
+
+    contrasts = [
+        abs(coord1_color - coord2_color),
+        abs(coord2_color - coord3_color),
+        abs(coord3_color - coord4_color)
+    ]
+    print("CONTRASTS:")
+    print(contrasts)
+
+    max_contrast_pos = contrasts.index(max(contrasts))
+    print("POSITION OF CONTRAST MAX:")
+    print(max_contrast_pos)
+
+    x, y = [coord2, coord3, coord4][max_contrast_pos]
+
+    pixel_count_add_x = x - coord1[0]
+    pixel_count_add_y = y - coord1[1]
+
+    return x, y, pixel_count_add_x, pixel_count_add_y
 
 def find_sizes(start_x, start_y, cv2_image):
     '''
@@ -112,29 +145,58 @@ def find_sizes(start_x, start_y, cv2_image):
     live_y = start_y
 
     # Find pixel location to start counting chunk size by moving pixel by pixel
-    # right until the previous pixel is a different colour
-    while check_color_change(cv2_image, live_x, live_y, live_x-1, live_y) == False:
+    # right until the next pixel is a different colour
+    print("Part 1")
+    print(live_x, live_y)
+    while check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False:
         live_x += 1
+    live_x, live_y, _, _ = find_largest_contrast(
+        cv2_image,
+        [live_x, live_y],
+        [live_x+1, live_y],
+        [live_x+2, live_y],
+        [live_x+3, live_y]
+    )
 
     # Find length of the top right quarter of the top left identity block by
     # moving pixel by pixel right until the next pixel is a different colour
-    # (must be <= 4, to avoid detecting soft edges as colour changes)
+    # (must be <= 2, to avoid detecting soft edges as colour changes)
+    print("Part 2: finding chunk size")
+    print(live_x, live_y)
     pixel_count = 1
-    while (check_color_change(cv2_image, live_x, live_y, live_x+1, live_y) == False or
-           pixel_count <= 4):
+    while (check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False or
+           pixel_count <= 2):
         live_x += 1
         pixel_count += 1
+    live_x, live_y, pixel_count_add_x, _ = find_largest_contrast(
+        cv2_image,
+        [live_x, live_y],
+        [live_x+1, live_y],
+        [live_x+2, live_y],
+        [live_x+3, live_y]
+    )
+    pixel_count += pixel_count_add_x
     # Calculate chunk size
     chunk_size = (pixel_count)*2
 
     # Find gap length by moving pixel by pixel right until there is a colour
     # change (must be <= 2, to avoid detecting soft edges as colour changes)
+    print("Part 3: finding gap size")
+    print(live_x, live_y)
     pixel_count = 1
     live_x += 1
-    while (check_color_change(cv2_image, live_x, live_y, live_x+1, live_y) == False or
+    while (check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False or
            pixel_count <= 2):
         live_x += 1
         pixel_count += 1
+    live_x, live_y, pixel_count_add_x, _ = find_largest_contrast(
+        cv2_image,
+        [live_x, live_y],
+        [live_x+1, live_y],
+        [live_x+2, live_y],
+        [live_x+3, live_y]
+    )
+    pixel_count += pixel_count_add_x
     # Determine gap size
     gap_size = pixel_count
 
@@ -335,7 +397,7 @@ def scan_visrep(file_name):
             # Determine the colour at the current live coordinates (first block)
             color = list(visrep_image[live_y][live_x])
 
-            draw_rectangle(dev_image, live_x-3, live_y-3, 6, 6, (0,0,255), True)
+            draw_rectangle(dev_image, live_x-3, live_y-3, 6, 6, (0,0,255), False)
 
             # If the colour is bright, assume white, and add it to block row
             if sum(color) > BRIGHTNESS_THRESHOLD:
@@ -351,7 +413,7 @@ def scan_visrep(file_name):
             visrep_edge = False
             # 1. Detect how many pixels of similar-enough colour there is to the
             # right
-            while check_color_change(visrep_image, temp_x, live_y, temp_x+1, live_y) == False:
+            while check_color_change(visrep_image, temp_x, live_y, temp_x+3, live_y) == False:
                 temp_x += 1
                 pixel_count += 1
                 # If there are more similarly-coloured pixels to the right than
@@ -361,6 +423,15 @@ def scan_visrep(file_name):
                 if pixel_count > chunk_size:
                     visrep_edge = True
                     break
+
+            _, _, pixel_count_add_x, _ = find_largest_contrast(
+                visrep_image,
+                [temp_x, live_y],
+                [temp_x+1, live_y],
+                [temp_x+2, live_y],
+                [temp_x+3, live_y]
+            )
+            pixel_count += pixel_count_add_x
             # 2. Calculate the amount of adjustment needed, which is the
             # difference between the pixels counted, and the expected amount of
             # pixels
@@ -376,7 +447,7 @@ def scan_visrep(file_name):
             visrep_edge = False
             # 1. Detect how many pixels of similar-enough colour there is
             # downwards
-            while check_color_change(visrep_image, live_x, temp_y, live_x, temp_y+1) == False:
+            while check_color_change(visrep_image, live_x, temp_y, live_x, temp_y+3) == False:
                 temp_y += 1
                 pixel_count += 1
                 # If there are more similarly-coloured pixels downwards than
@@ -386,6 +457,15 @@ def scan_visrep(file_name):
                 if pixel_count > chunk_size:
                     visrep_edge = True
                     break
+
+            _, _, _, pixel_count_add_y = find_largest_contrast(
+                visrep_image,
+                [live_x, temp_y],
+                [live_x, temp_y+1],
+                [live_x, temp_y+2],
+                [live_x, temp_y+3]
+            )
+            pixel_count += pixel_count_add_y
             # 2. Calculate the amount of adjustment needed, which is the
             # difference between the pixels counted, and the expected amount of
             # pixels
@@ -394,7 +474,7 @@ def scan_visrep(file_name):
             if visrep_edge == True:
                 adjust_y = 0
 
-            draw_rectangle(dev_image, live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), True)
+            draw_rectangle(dev_image, live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), False)
 
             # Adjust live_x to the horizontal centre of the block which was
             # just read
@@ -424,9 +504,17 @@ def scan_visrep(file_name):
         # just read (the starting block of the new row to be scanned)
         temp_x = live_x
         pixel_count = 0
-        while check_color_change(visrep_image, temp_x, live_y, temp_x+1, live_y) == False:
+        while check_color_change(visrep_image, temp_x, live_y, temp_x+3, live_y) == False:
             temp_x += 1
             pixel_count += 1
+        _, _, pixel_count_add_x, _ = find_largest_contrast(
+            visrep_image,
+            [temp_x, live_y],
+            [temp_x+1, live_y],
+            [temp_x+2, live_y],
+            [temp_x+3, live_y]
+        )
+        pixel_count += pixel_count_add_x
         adjust_x = int(pixel_count - chunk_size/2)
         live_x += adjust_x
 
@@ -437,6 +525,14 @@ def scan_visrep(file_name):
         while check_color_change(visrep_image, live_x, temp_y, live_x, temp_y+1) == False:
             temp_y += 1
             pixel_count += 1
+        _, _, _, pixel_count_add_y = find_largest_contrast(
+            visrep_image,
+            [live_x, temp_y],
+            [live_x, temp_y+1],
+            [live_x, temp_y+2],
+            [live_x, temp_y+3]
+        )
+        pixel_count += pixel_count_add_y
         adjust_y = int(pixel_count - chunk_size/2)
         live_y += adjust_y
 
