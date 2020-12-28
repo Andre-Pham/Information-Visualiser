@@ -63,7 +63,7 @@ def find_identity(cv2_visrep, cv2_target):
     start_x = int((4*match_x + target_width)/4)
     start_y = int((4*match_y + target_height)/4)
 
-    draw_rectangle(dev_image, match_x, match_y, target_width, target_height, (0,0,255), True)
+    draw_rectangle(dev_image, match_x, match_y, target_width, target_height, (0,0,255), False)
 
     return identity_x, identity_y, start_x, start_y
 
@@ -118,8 +118,9 @@ def find_largest_contrast(cv2_image, coord1, coord2, coord3, coord4):
 
     x, y = [coord2, coord3, coord4][max_contrast_pos]
 
-    pixel_count_add_x = x - coord1[0]
-    pixel_count_add_y = y - coord1[1]
+    # - 1, because x "ends" on the right side of the contrasting pixels
+    pixel_count_add_x = x - coord1[0] - 1
+    pixel_count_add_y = y - coord1[1] - 1
 
     return x, y, pixel_count_add_x, pixel_count_add_y
 
@@ -175,6 +176,8 @@ def find_sizes(start_x, start_y, cv2_image):
         [live_x+2, live_y],
         [live_x+3, live_y]
     )
+    print('PIXEL COUNT ADD X')
+    print(pixel_count_add_x)
     pixel_count += pixel_count_add_x
     # Calculate chunk size
     chunk_size = (pixel_count)*2
@@ -184,7 +187,6 @@ def find_sizes(start_x, start_y, cv2_image):
     print("Part 3: finding gap size")
     print(live_x, live_y)
     pixel_count = 1
-    live_x += 1
     while (check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False or
            pixel_count <= 2):
         live_x += 1
@@ -347,6 +349,9 @@ def scan_visrep(file_name):
     chunk_size, gap_size = find_sizes(start_x, start_y, visrep_image)
     # Define the step size
     step_size = gap_size + chunk_size
+    print('STATS')
+    print(gap_size)
+    print(chunk_size)
 
     # Find approximately how many blocks in a row
     approx_block_in_row = int((id4_x - id1_x)/(step_size) + 1)
