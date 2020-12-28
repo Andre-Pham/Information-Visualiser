@@ -83,42 +83,59 @@ def check_color_change(cv2_image, x1, y1, x2, y2):
         If the two pixels are considered different colours, returns True.
         Otherwise, returns False.
     '''
-    print(f"{list(cv2_image[y1][x1])} - {sum(list(cv2_image[y1][x1]))}")
-    print(f"{list(cv2_image[y2][x2])} - {sum(list(cv2_image[y2][x2]))}")
     # If the pixels at (x1, y1) and (x2, y2) are close in brightness
     if abs(sum(list(cv2_image[y1][x1])) - sum(list(cv2_image[y2][x2]))) < RGB_THRESHOLD:
         # Return False
-        print('----')
         return False
-    print('COLOUR CHANGE DETECTED')
-    print('----')
     # If the pixels are not close enough in brightness, return True
     return True
 
 def find_largest_contrast(cv2_image, coord1, coord2, coord3, coord4):
     '''
-    Note: coords are lists with len() of 2
+    Determines which two adjacent pixels have the greatest contrast, out of four
+    given coordinates.
+
+    PARAMETERS:
+        cv2_image = image file ran through cv2.imread()
+        coord1 = (x, y) coordinates in list form
+        coord2 = (x, y) coordinates in list form, between coord1 and coord3
+        coord3 = (x, y) coordinates in list form, between coord2, and coord4
+        coord4 = (x, y) coordinates in list form, after coord3
+    OUTPUT:
+        x = the x coordinate of the highest contrast pixel, relative to its
+            adjacent pixel (of the two pixels with the highest contrast, x
+            favoures the one on the right)
+        y = the y coordinate of the highest contrast pixel, relative to its
+            adjacent pixel (of the two pixels with the highest contrast, y
+            favours the one on the bottom)
+        pixel_count_add_x = how many pixels difference between the given x
+            coordinate and the pixel with the highest contrast (of the two
+            pixels with the highest contrast, favours the one on the left)
+        pixel_count_add_y = how many pixels difference between the given y
+            coordiante and the pixel with the highest contrast (of the two
+            pixels with the highest contrast, favours the one on the top)
     '''
+    # Define the colour values of each coordinate
     coord1_color = sum(list(cv2_image[coord1[1]][coord1[0]]))
     coord2_color = sum(list(cv2_image[coord2[1]][coord2[0]]))
     coord3_color = sum(list(cv2_image[coord3[1]][coord3[0]]))
     coord4_color = sum(list(cv2_image[coord4[1]][coord4[0]]))
 
+    # Define a list of all the contrasts between the adjacent pixels
     contrasts = [
         abs(coord1_color - coord2_color),
         abs(coord2_color - coord3_color),
         abs(coord3_color - coord4_color)
     ]
-    print("CONTRASTS:")
-    print(contrasts)
 
+    # Identify the index of the two pixels with the highest contrast
     max_contrast_pos = contrasts.index(max(contrasts))
-    print("POSITION OF CONTRAST MAX:")
-    print(max_contrast_pos)
 
+    # Identify the coordinate with the highest contrast (favoured right)
     x, y = [coord2, coord3, coord4][max_contrast_pos]
 
-    # - 1, because x "ends" on the right side of the contrasting pixels
+    # Identify the distance between the original coordaintes and the highest
+    # contrast coordinate (favoured left, hence the '- 1')
     pixel_count_add_x = x - coord1[0] - 1
     pixel_count_add_y = y - coord1[1] - 1
 
@@ -140,15 +157,11 @@ def find_sizes(start_x, start_y, cv2_image):
         chunk_size = length of the blocks in the visrep, in pixels
         gap_size = length lf the gap between the blocks in the visrep, in pixels
     '''
-
-
     live_x = start_x
     live_y = start_y
 
     # Find pixel location to start counting chunk size by moving pixel by pixel
     # right until the next pixel is a different colour
-    print("Part 1")
-    print(live_x, live_y)
     while check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False:
         live_x += 1
     live_x, live_y, _, _ = find_largest_contrast(
@@ -162,13 +175,14 @@ def find_sizes(start_x, start_y, cv2_image):
     # Find length of the top right quarter of the top left identity block by
     # moving pixel by pixel right until the next pixel is a different colour
     # (must be <= 2, to avoid detecting soft edges as colour changes)
-    print("Part 2: finding chunk size")
-    print(live_x, live_y)
+    # 1. Find a pixel where three pixels to the right, theres a colour change
     pixel_count = 1
     while (check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False or
            pixel_count <= 2):
         live_x += 1
         pixel_count += 1
+    # 2. Of the four pixels representing a colour change, identify the pixels
+    # with the most contrast, and update pixel_count, live_x and live_y
     live_x, live_y, pixel_count_add_x, _ = find_largest_contrast(
         cv2_image,
         [live_x, live_y],
@@ -176,21 +190,20 @@ def find_sizes(start_x, start_y, cv2_image):
         [live_x+2, live_y],
         [live_x+3, live_y]
     )
-    print('PIXEL COUNT ADD X')
-    print(pixel_count_add_x)
     pixel_count += pixel_count_add_x
     # Calculate chunk size
     chunk_size = (pixel_count)*2
 
     # Find gap length by moving pixel by pixel right until there is a colour
     # change (must be <= 2, to avoid detecting soft edges as colour changes)
-    print("Part 3: finding gap size")
-    print(live_x, live_y)
     pixel_count = 1
+    # 1. Find a pixel where three pixels to the right, theres a colour change
     while (check_color_change(cv2_image, live_x, live_y, live_x+3, live_y) == False or
            pixel_count <= 2):
         live_x += 1
         pixel_count += 1
+    # 2. Of the four pixels representing a colour change, identify the pixels
+    # with the most contrast, and update pixel_count, live_x and live_y
     live_x, live_y, pixel_count_add_x, _ = find_largest_contrast(
         cv2_image,
         [live_x, live_y],
@@ -349,9 +362,6 @@ def scan_visrep(file_name):
     chunk_size, gap_size = find_sizes(start_x, start_y, visrep_image)
     # Define the step size
     step_size = gap_size + chunk_size
-    print('STATS')
-    print(gap_size)
-    print(chunk_size)
 
     # Find approximately how many blocks in a row
     approx_block_in_row = int((id4_x - id1_x)/(step_size) + 1)
@@ -428,7 +438,6 @@ def scan_visrep(file_name):
                 if pixel_count > chunk_size:
                     visrep_edge = True
                     break
-
             _, _, pixel_count_add_x, _ = find_largest_contrast(
                 visrep_image,
                 [temp_x, live_y],
@@ -462,7 +471,6 @@ def scan_visrep(file_name):
                 if pixel_count > chunk_size:
                     visrep_edge = True
                     break
-
             _, _, _, pixel_count_add_y = find_largest_contrast(
                 visrep_image,
                 [live_x, temp_y],
