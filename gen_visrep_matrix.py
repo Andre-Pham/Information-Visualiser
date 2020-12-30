@@ -34,7 +34,7 @@ def len_to_dyn(bin_list, num):
     # Return the list
     return bin_list
 
-def generate_visrep(text):
+def gen_visrep_matrix(text):
     '''
     Generates the visual representation of a string in the form of a 2D matrix
     (nested lists) with 0s and 1s as elements. Returns the visual

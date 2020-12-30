@@ -1,13 +1,14 @@
+# Code for running the interface and connecting the entire program together
 
 # Import modules
 import tkinter as tk
 from tkinter import filedialog
 import sys
 # Import complimenting scripts
-from display_visrep import *
-from text_to_visrep import *
-from visrep_to_text import *
-from scan_visrep import *
+from gen_visrep_photo import *
+from gen_visrep_matrix import *
+from read_visrep_matrix import *
+from read_visrep_photo import *
 from constants import *
 
 def common_title(text):
@@ -76,7 +77,7 @@ def common_popup(title, message):
     popup=tk.Toplevel()
     popup.geometry("350x100")
     popup.title(title)
-    popup.iconbitmap("logo.ico")
+    popup.iconbitmap(DIR_LOGO)
     tk.Label(
         popup,
         text=message,
@@ -109,7 +110,7 @@ class Interface:
         window.geometry(geometry)
         window.title(title)
         window.configure(bg=bg)
-        window.iconbitmap("logo.ico")
+        window.iconbitmap(DIR_LOGO)
 
         # Set grid configurations of interface
         window.grid_rowconfigure(0, weight=0)
@@ -207,8 +208,8 @@ class Interface:
         '''
         try:
             text_input = self.live_text_box.get('1.0', tk.END).strip("\n")
-            visrep = generate_visrep(text_input)
-            generate_visrep_png(visrep, "show")
+            visrep = gen_visrep_matrix(text_input)
+            gen_visrep_photo(visrep, "show")
         except:
             common_popup(
                 "An Error Occured",
@@ -222,8 +223,8 @@ class Interface:
         '''
         try:
             text_input = self.live_text_box.get('1.0', tk.END).strip("\n")
-            visrep = generate_visrep(text_input)
-            generate_visrep_png(visrep, self.select_save_dir(text_input))
+            visrep = gen_visrep_matrix(text_input)
+            gen_visrep_photo(visrep, self.select_save_dir(text_input))
             common_popup(
                 "File Save Successful",
                 "The file was saved successfully."
@@ -240,9 +241,9 @@ class Interface:
         Activates from "Select Image" button.
         '''
         #try:
-        visrep_image = self.select_image()
-        visrep_matrix = scan_visrep(visrep_image)
-        text_output = decode_visrep(visrep_matrix)
+        visrep_dir = self.select_image()
+        visrep_matrix = VisrepPhoto(visrep_dir).visrep_matrix
+        text_output = read_visrep_matrix(visrep_matrix)
         self.live_text_box.config(
             text=text_output,
             bg=SUCCESS_COLOR,
@@ -256,7 +257,6 @@ class Interface:
                 fg=TEXT_COLOR_HIGHLIGHT
             )
         '''
-
 
     # FUNCTIONS THAT SUPPORT FILE SELECTION
 

@@ -14,7 +14,7 @@ def binlist_to_int(bin_list):
     num = int(bin_string, 2)
     return num
 
-def decode_visrep(visrep):
+def read_visrep_matrix(visrep):
     '''
     Generates the string from its visual representation, which is a 2D matrix
     (nested lists) which holds 0s and 1s. Returns the string.
@@ -46,11 +46,3 @@ def decode_visrep(visrep):
 
     # Return the final decoded string
     return decoded_text
-
-# Testing
-if __name__ == "__main__":
-    from text_to_visrep import *
-    test = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
-    for row in test:
-        print(row)
-    print(decode_visrep(test))

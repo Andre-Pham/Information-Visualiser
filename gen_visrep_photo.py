@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 # Import complimenting scripts
 from constants import *
 
-def generate_visrep_png(visrep, option):
+def gen_visrep_photo(visrep, option):
     '''
     Generates and shows a png that represents a visrep via blocks that are
     coloured black and white.
