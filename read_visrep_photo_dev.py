@@ -119,6 +119,60 @@ def read_visrep_photo(file_dir):
             interpolation=cv2.INTER_AREA
         )
 
+    '''DEV'''
+    # Read the visrep using PIL
+    PIL_dev = Image.open(file_dir)
+    # Identify the brightness adjustment
+    brightness_avg = ImageStat.Stat(PIL_dev.convert("L")).mean[0]
+    if brightness_avg >= 160:
+        brightness_enhance = 1
+    elif brightness_avg <= 125:
+        brightness_enhance = 1.5
+    else:
+        brightness_enhance = 1.2
+    # Enhance the brightness
+    enhancer = ImageEnhance.Brightness(PIL_dev)
+    PIL_dev_enhance = enhancer.enhance(brightness_enhance)
+    # Enhance the contrast
+    enhancer = ImageEnhance.Contrast(PIL_dev_enhance)
+    PIL_dev_enhance = enhancer.enhance(1.5)
+
+    # Convert the enhanced PIL visrep to cv2
+    cv2_dev = cv2.cvtColor(
+        np.array(PIL_dev_enhance),
+        cv2.COLOR_RGB2BGR
+    )
+    # If the visrep is too large, resize the visrep
+    if max_length > MAX_LENGTH:
+        cv2_dev = cv2.resize(
+            cv2_dev,
+            (new_width, new_height),
+            interpolation=cv2.INTER_AREA
+        )
+    '''DEV END'''
+
+    def draw_rectangle(x, y, width, height, BRG_color, show):
+        '''
+        Draws a rectangle over given coordinates. Image is shown if shown=True.
+
+        PARAMETERS:
+            x = top left x coordinate
+            y = top left y coordiante
+            width = width of rectangle, in pixels
+            height = height of rectangle, in pixels
+            RGB_color = tuple color of the outline, e.g. (0, 0, 0)
+            show = boolean of whether the image is shown
+        '''
+        nonlocal cv2_dev
+
+        # Draw the rectangle on cv2_image
+        cv2.rectangle(cv2_dev, (x, y), (x+width, y+height), BRG_color, 2)
+        if show:
+            # Display the original image with the rectangle around the match.
+            cv2.imshow('output', cv2_dev)
+            # The image is only displayed if we call this
+            cv2.waitKey(0)
+
     def find_identity(cv2_target):
         '''
         Uses cv2 image matching to identify the location of a given identity
@@ -359,6 +413,11 @@ def read_visrep_photo(file_dir):
     # Define the step size
     step_size = gap_size + block_len
 
+    draw_rectangle(int(id1_x-block_len/2), int(id1_y-block_len/2), block_len, block_len, (0,0,255), False)
+    draw_rectangle(int(id2_x-block_len/2), int(id2_y-block_len/2), block_len, block_len, (0,0,255), False)
+    draw_rectangle(int(id3_x-block_len/2), int(id3_y-block_len/2), block_len, block_len, (0,0,255), False)
+    draw_rectangle(int(id4_x-block_len/2), int(id4_y-block_len/2), block_len, block_len, (0,0,255), False)
+
     # Find approximately how many blocks in a row
     approx_block_in_row = int((id4_x - id1_x)/(step_size) + 1)
     # Vertical adjustment (applied to each new block) due to rotated visreps
@@ -404,6 +463,8 @@ def read_visrep_photo(file_dir):
             # Determine the colour at the current live coordinates
             # (first block)
             color = list(cv2_visrep_enhance[live_y][live_x])
+
+            draw_rectangle(live_x-3, live_y-3, 6, 6, (0,0,255), False)
 
             # If the colour is bright, assume white, and add it to the block
             # row
@@ -478,6 +539,8 @@ def read_visrep_photo(file_dir):
             if visrep_edge == True:
                 adjust_y = 0
 
+            draw_rectangle(live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), False)
+
             # Adjust live_x to the horizontal centre of the block which was
             # just read
             live_x += step_size + adjust_x
@@ -505,6 +568,8 @@ def read_visrep_photo(file_dir):
         # no more rows to add, so the loop is broken
         if live_y >= id3_y-int(block_len/2):
             break
+
+        draw_rectangle(live_x-3, live_y-3, 6, 6, (255,0,0), True)
 
         # Adjust live_x to the horizontal centre of the block which was
         # just read (the starting block of the new row to be scanned)
@@ -558,5 +623,7 @@ def read_visrep_photo(file_dir):
     visrep_matrix.append(
         ["I3"] + create_block_row("BOTTOM", live_x, live_y) + ["I4"]
     )
+
+    draw_rectangle(0, 0, 0, 0, (0, 0, 0), True)
 
     return visrep_matrix
