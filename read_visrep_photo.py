@@ -64,6 +64,9 @@ def read_visrep_photo(file_dir):
     Scans a given image file's visrep, and returns the 2D matrix representation
     of it.
 
+    PARAMETERS:
+        file_dir = directory of the image file to be converted to a 2D matrix
+            representation
     OUTPUT:
         visrep_matrix = 2D matrix (nested lists) representation of the visrep
             found in the given image file
