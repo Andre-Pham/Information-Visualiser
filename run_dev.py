@@ -8,8 +8,8 @@ import sys
 from gen_visrep_photo import *
 from gen_visrep_matrix import *
 from read_visrep_matrix import *
-from read_visrep_photo import *
-from constants import *
+from read_visrep_photo_dev import *
+from constants_dev import *
 
 def common_title(text):
     '''
@@ -118,7 +118,7 @@ class Interface:
 
         # Define tkinter elements for the main menu page
         self.main_menu_elements = [
-            common_title("Main Menu"),
+            common_title("Main Menu [DEVELOPER MODE]"),
             common_button("Text to VISREP", lambda: self.draw_gen_visrep()),
             common_button("VISREP to Text", lambda: self.draw_gen_text()),
             common_button("Quit", lambda: self.quit_interface())
@@ -126,7 +126,7 @@ class Interface:
 
         # Define tkinter elements for the 'text to visrep' page
         self.gen_visrep_elements = [
-            common_title("Text to VISREP"),
+            common_title("Text to VISREP [DEVELOPER MODE]"),
             common_text_input(),
             common_button("Generate VISREP", lambda: self.generate_visrep_button()),
             common_button("Save VISREP", lambda: self.save_visrep_button()),
@@ -135,7 +135,7 @@ class Interface:
 
         # Define tkinter elements for the 'visrep to text' page
         self.gen_text_elements = [
-            common_title("VISREP to Text"),
+            common_title("VISREP to Text [DEVELOPER MODE]"),
             common_button("Select Image", lambda: self.translate_visrep_button()),
             common_text_output(),
             common_button("Main Menu", lambda: self.draw_main_menu())
@@ -240,21 +240,23 @@ class Interface:
         Generates text from a visrep image file, selected via file explorer.
         Activates from "Select Image" button.
         '''
-        try:
-            visrep_dir = self.select_image()
-            visrep_matrix = read_visrep_photo(visrep_dir)
-            text_output = read_visrep_matrix(visrep_matrix)
-            self.live_text_box.config(
-                text=text_output,
-                bg=SUCCESS_COLOR,
-                fg=TEXT_COLOR_HIGHLIGHT
-            )
+        #try:
+        visrep_dir = self.select_image()
+        visrep_matrix = read_visrep_photo(visrep_dir)
+        text_output = read_visrep_matrix(visrep_matrix)
+        self.live_text_box.config(
+            text=text_output,
+            bg=SUCCESS_COLOR,
+            fg=TEXT_COLOR_HIGHLIGHT
+        )
+        '''
         except:
             self.live_text_box.config(
                 text="ERROR: Scan unsuccessful.",
                 bg=FAIL_COLOR,
                 fg=TEXT_COLOR_HIGHLIGHT
             )
+        '''
 
     # FUNCTIONS THAT SUPPORT FILE SELECTION
 

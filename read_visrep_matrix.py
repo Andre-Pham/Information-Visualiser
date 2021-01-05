@@ -7,6 +7,11 @@ def binlist_to_int(bin_list):
     '''
     Generates an integer from a list which contains 0s and 1s to represent a
     binary value.
+
+    PARAMETERS:
+        bin_list = a binary value represented as a list
+    OUTPUT:
+        num = the integer value that bin_list represented
     '''
     # Convert the list to a string which represents the binary datatype
     bin_string = "0b" + "".join(list(map(str, bin_list)))
@@ -14,21 +19,31 @@ def binlist_to_int(bin_list):
     num = int(bin_string, 2)
     return num
 
-def decode_visrep(visrep):
+def read_visrep_matrix(visrep_matrix):
     '''
     Generates the string from its visual representation, which is a 2D matrix
     (nested lists) which holds 0s and 1s. Returns the string.
+
+    PARAMETERS:
+        visrep_matrix = a 2D matrix (nested lists) that represents text
+    OUTPUT:
+        decoded_text = the string that visrep_matrix represented
     '''
     # Define the string to be returned as a list
     decoded_text = ""
     # Define the visrep 2D matrix as a flattened list
-    flat_visrep = [bit for row in visrep for bit in row]
+    flat_visrep = [bit for row in visrep_matrix for bit in row]
+    # Remove identity blocks
+    flat_visrep.remove("I1")
+    flat_visrep.remove("I2")
+    flat_visrep.remove("I3")
+    flat_visrep.remove("I4")
     # Define how many bits in a row represents a character
-    char_bits_len = binlist_to_int(flat_visrep[1:INIT_BIT_COUNT+1])
+    char_bits_len = binlist_to_int(flat_visrep[:INIT_BIT_COUNT])
 
     # Loop through the index of the beginning of every group of bits which
     # represent a character
-    for i in range(INIT_BIT_COUNT+1, len(flat_visrep)-1, char_bits_len):
+    for i in range(INIT_BIT_COUNT, len(flat_visrep)-1, char_bits_len):
         # Define the list of bits which represents a character
         char_bits = flat_visrep[i:i+char_bits_len]
         # Decode the character as a string
@@ -41,11 +56,3 @@ def decode_visrep(visrep):
 
     # Return the final decoded string
     return decoded_text
-
-# Testing
-if __name__ == "__main__":
-    from text_to_visrep import *
-    test = generate_visrep("https://www.python.org/dev/peps/pep-0008/#code-lay-out")
-    for row in test:
-        print(row)
-    print(decode_visrep(test))

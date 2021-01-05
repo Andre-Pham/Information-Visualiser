@@ -5,12 +5,15 @@ from PIL import Image, ImageDraw
 # Import complimenting scripts
 from constants import *
 
-def generate_visrep_png(visrep, option):
+def gen_visrep_photo(visrep_matrix, option):
     '''
     Generates and shows a png that represents a visrep via blocks that are
     coloured black and white.
-    Option is a string. If option == "show", the image is shown as a png. If
-    option is a directory, the image is saved to that directory.
+
+    PARAMETERS:
+        visrep_matrix = a 2D matrix (nested lists) that represents text
+        option = if option="show", the image is shown to the user, if option is
+            a directory, the image is saved to that directory
     '''
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
@@ -38,47 +41,50 @@ def generate_visrep_png(visrep, option):
     def draw_id_block(id):
         '''
         Draws id block onto canvas.
-        If parameter id="I1", draws first id block with black squares "pointing"
-        to centre.
-        If parameter id="I2", draws second id block with black squares
-        "pointing" perpendicular to centre.
+
+        PARAMETERS:
+            id = if id="I1", draws first id block, if id="I2", draws second id
+                block, if id="I3", draws third id block, if id="I4", draws
+                fourth id block
         '''
-        # Colouring for first ID block, I1
-        if id == "I1":
+        # Colouring for fourth ID block, I4
+        if id == "I4":
             color1 = "white"
             color2 = "black"
-        # Colouring for second ID block, I2
+        # Colouring for either the first, second or third ID block, I1, I2, I3
         else:
             color1 = "black"
             color2 = "white"
 
         # Draw full sized block
         draw_block(color1)
-        # Draw smaller block in top left of full block
-        canvas_draw.polygon(
-            [
-                (live_x, live_y),
-                (live_x + BLOCK_WIDTH/2, live_y),
-                (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2),
-                (live_x, live_y + BLOCK_WIDTH/2)
-            ],
-            fill=color2,
-            outline=None
-        )
-        # Draw smaller block in top right of full block
-        canvas_draw.polygon(
-            [
-                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2 + 1),
-                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2 + 1),
-                (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH),
-                (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH)
-            ],
-            fill=color2,
-            outline=None
-        )
+        if id != "I2":
+            # Draw smaller block in top right of full block
+            canvas_draw.polygon(
+                [
+                    (live_x + BLOCK_WIDTH/2 + 1, live_y),
+                    (live_x + BLOCK_WIDTH, live_y),
+                    (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2),
+                    (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2)
+                ],
+                fill=color2,
+                outline=None
+            )
+        if id != "I3":
+            # Draw smaller block in bottom left of full block
+            canvas_draw.polygon(
+                [
+                    (live_x, live_y + BLOCK_WIDTH/2 + 1),
+                    (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2 + 1),
+                    (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH),
+                    (live_x, live_y + BLOCK_WIDTH)
+                ],
+                fill=color2,
+                outline=None
+            )
 
-    # Loop through each row of the visrep
-    for row in visrep:
+    # Loop through each row of the visrep_matrix
+    for row in visrep_matrix:
         # Loop through each bit of each row
         for bit in row:
             # Draw block, with colour based on bit value
