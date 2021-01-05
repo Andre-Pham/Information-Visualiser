@@ -95,7 +95,7 @@ def read_visrep_photo(file_dir):
     brightness_avg = ImageStat.Stat(PIL_visrep.convert("L")).mean[0]
     if brightness_avg >= 160:
         brightness_enhance = 1
-    elif brightness_avg <= 125:
+    elif brightness_avg <= 115:
         brightness_enhance = 1.5
     else:
         brightness_enhance = 1.2
@@ -128,7 +128,7 @@ def read_visrep_photo(file_dir):
     brightness_avg = ImageStat.Stat(PIL_dev.convert("L")).mean[0]
     if brightness_avg >= 160:
         brightness_enhance = 1
-    elif brightness_avg <= 125:
+    elif brightness_avg <= 115:
         brightness_enhance = 1.5
     else:
         brightness_enhance = 1.2
