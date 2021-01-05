@@ -5,12 +5,15 @@ from PIL import Image, ImageDraw
 # Import complimenting scripts
 from constants import *
 
-def gen_visrep_photo(visrep, option):
+def gen_visrep_photo(visrep_matrix, option):
     '''
     Generates and shows a png that represents a visrep via blocks that are
     coloured black and white.
-    Option is a string. If option == "show", the image is shown as a png. If
-    option is a directory, the image is saved to that directory.
+
+    PARAMETERS:
+        visrep_matrix = a 2D matrix (nested lists) that represents text
+        option = if option="show", the image is shown to the user, if option is
+            a directory, the image is saved to that directory
     '''
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
@@ -38,10 +41,11 @@ def gen_visrep_photo(visrep, option):
     def draw_id_block(id):
         '''
         Draws id block onto canvas.
-        If parameter id="I1", draws first id block with black squares "pointing"
-        to centre.
-        If parameter id="I2", draws second id block with black squares
-        "pointing" perpendicular to centre.
+
+        PARAMETERS:
+            id = if id="I1", draws first id block, if id="I2", draws second id
+                block, if id="I3", draws third id block, if id="I4", draws
+                fourth id block
         '''
         # Colouring for fourth ID block, I4
         if id == "I4":
@@ -79,8 +83,8 @@ def gen_visrep_photo(visrep, option):
                 outline=None
             )
 
-    # Loop through each row of the visrep
-    for row in visrep:
+    # Loop through each row of the visrep_matrix
+    for row in visrep_matrix:
         # Loop through each bit of each row
         for bit in row:
             # Draw block, with colour based on bit value

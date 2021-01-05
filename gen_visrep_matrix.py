@@ -9,6 +9,11 @@ def is_square(num):
     '''
     Determines if a given integer is a perfect square. Returns True if it is,
     otherwise returns False.
+
+    PARAMETERS:
+        num = an integer
+    OUTPUT:
+        If num is a perfect square number, True. If not, False.
     '''
     return num == math.isqrt(num)**2
 
@@ -16,6 +21,12 @@ def num_to_bin_list(num):
     '''
     Converts a given integer to binary in the form of a list, with each
     element holding a bit. Returns the list.
+
+    PARAMETERS:
+        num = an integer
+    OUTPUT:
+        bin_list = the integer input in binary, represented as a list, e.g.
+            if num=3, bin_list=[1, 0, 1]
     '''
     # Converts number to binary string
     bin_string = bin(num)
@@ -27,6 +38,13 @@ def len_to_dyn(bin_list, num):
     '''
     Adds 0s as elements to the front of a list until the list has a given
     number (num) of elements. Returns the adjusted list.
+
+    PARAMETERS:
+        bin_list = a binary value represented as a list
+        num = an integer that you would like the the length of bin_list to be
+    OUTPUT:
+        bin_list = bin_list input, but with 0 elements added to the front so
+            that its length is num
     '''
     # Add 0s to the front of the list until it has a length of num
     while len(bin_list) < num:
@@ -39,6 +57,11 @@ def gen_visrep_matrix(text):
     Generates the visual representation of a string in the form of a 2D matrix
     (nested lists) with 0s and 1s as elements. Returns the visual
     representation.
+
+    PARAMETERS:
+        text = a string to be converted
+    OUTPUT:
+        visrep_matrix = a 2D matrix (nested lists) that represents the text
     '''
     # Determine how many bits is required to represent each character
     all_ascii_used = [ord(char.lower()) for char in text]
@@ -102,9 +125,9 @@ def gen_visrep_matrix(text):
     visrep_flat.append("I4")
 
     # Create visrep as a 2D matrix with equal rows and columns
-    visrep = []
+    visrep_matrix = []
     for i in range(0, num_blocks, row_len):
-        visrep.append(visrep_flat[i:i+row_len])
+        visrep_matrix.append(visrep_flat[i:i+row_len])
 
     # Return the visual representation
-    return visrep
+    return visrep_matrix

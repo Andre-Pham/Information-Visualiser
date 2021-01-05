@@ -242,7 +242,7 @@ class Interface:
         '''
         #try:
         visrep_dir = self.select_image()
-        visrep_matrix = VisrepPhoto(visrep_dir).visrep_matrix
+        visrep_matrix = read_visrep_photo(visrep_dir)
         text_output = read_visrep_matrix(visrep_matrix)
         self.live_text_box.config(
             text=text_output,

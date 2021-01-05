@@ -7,6 +7,11 @@ def binlist_to_int(bin_list):
     '''
     Generates an integer from a list which contains 0s and 1s to represent a
     binary value.
+
+    PARAMETERS:
+        bin_list = a binary value represented as a list
+    OUTPUT:
+        num = the integer value that bin_list represented
     '''
     # Convert the list to a string which represents the binary datatype
     bin_string = "0b" + "".join(list(map(str, bin_list)))
@@ -14,15 +19,20 @@ def binlist_to_int(bin_list):
     num = int(bin_string, 2)
     return num
 
-def read_visrep_matrix(visrep):
+def read_visrep_matrix(visrep_matrix):
     '''
     Generates the string from its visual representation, which is a 2D matrix
     (nested lists) which holds 0s and 1s. Returns the string.
+
+    PARAMETERS:
+        visrep_matrix = a 2D matrix (nested lists) that represents text
+    OUTPUT:
+        decoded_text = the string that visrep_matrix represented
     '''
     # Define the string to be returned as a list
     decoded_text = ""
     # Define the visrep 2D matrix as a flattened list
-    flat_visrep = [bit for row in visrep for bit in row]
+    flat_visrep = [bit for row in visrep_matrix for bit in row]
     # Remove identity blocks
     flat_visrep.remove("I1")
     flat_visrep.remove("I2")
