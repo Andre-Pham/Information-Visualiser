@@ -106,6 +106,8 @@ def read_visrep_photo(file_dir):
     enhancer = ImageEnhance.Contrast(PIL_visrep_enhance)
     PIL_visrep_enhance = enhancer.enhance(1.5)
 
+    print(f"----------\nBRIGHTNESS AVERAGE: {brightness_avg}\n----------")
+
     # Convert the enhanced PIL visrep to cv2
     cv2_visrep_enhance = cv2.cvtColor(
         np.array(PIL_visrep_enhance),
@@ -385,10 +387,26 @@ def read_visrep_photo(file_dir):
         # Define the centre (id#_x, id#_y) of each identity block, as well
         # as start_x and start_y, which are the starting points for finding
         # the gap size and chunk size
-        id1_x, id1_y, start_x, start_y = find_identity(target_image1)
-        id2_x, id2_y, _, _ = find_identity(target_image2)
-        id3_x, id3_y, _, _ = find_identity(target_image3)
-        id4_x, id4_y, _, _ = find_identity(target_image4)
+        try:
+            id1_x, id1_y, start_x, start_y = find_identity(target_image1)
+        except:
+            print("ERROR: Count not find identity block #1")
+            return
+        try:
+            id2_x, id2_y, _, _ = find_identity(target_image2)
+        except:
+            print("ERROR: Count not find identity block #2")
+            return
+        try:
+            id3_x, id3_y, _, _ = find_identity(target_image3)
+        except:
+            print("ERROR: Count not find identity block #3")
+            return
+        try:
+            id4_x, id4_y, _, _ = find_identity(target_image4)
+        except:
+            print("ERROR: Count not find identity block #4")
+            return
 
         # Determines if the defined positions of the identity blocks form a
         # square (and hence the identity block locations found are valid)
@@ -413,6 +431,8 @@ def read_visrep_photo(file_dir):
     # Define the step size
     step_size = gap_size + block_len
 
+    print(f"----------\nBLOCK LENGTH: {block_len}\n----------")
+    print(f"----------\nGAP SIZE: {gap_size}\n----------")
     draw_rectangle(int(id1_x-block_len/2), int(id1_y-block_len/2), block_len, block_len, (0,0,255), False)
     draw_rectangle(int(id2_x-block_len/2), int(id2_y-block_len/2), block_len, block_len, (0,0,255), False)
     draw_rectangle(int(id3_x-block_len/2), int(id3_y-block_len/2), block_len, block_len, (0,0,255), False)
