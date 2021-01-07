@@ -195,7 +195,7 @@ def read_visrep_photo(file_dir):
         sum(list(cv2_visrep[start_y][start_x])),
         sum(list(cv2_visrep[start_y][start_x-1]))
     ]
-    # 2. Average the RGB colour value to estimate the average black pixel colour
+    # 2. Average the BGR colour value to estimate the average black pixel colour
     black_color_ref = sum(black_color_ref_list)/4
     print(f"----------\nBLACK_REF: {black_color_ref}\n----------")
     # 3. Determine the amount of brightness adjustment needed relative to how
@@ -259,7 +259,7 @@ def read_visrep_photo(file_dir):
         )
     '''DEV END'''
 
-    def draw_rectangle(x, y, width, height, BRG_color, show):
+    def draw_rectangle(x, y, width, height, BGR_color, show):
         '''
         Draws a rectangle over given coordinates. Image is shown if shown=True.
 
@@ -268,13 +268,13 @@ def read_visrep_photo(file_dir):
             y = top left y coordiante
             width = width of rectangle, in pixels
             height = height of rectangle, in pixels
-            RGB_color = tuple color of the outline, e.g. (0, 0, 0)
+            BGR_color = tuple color of the outline, e.g. (0, 0, 0)
             show = boolean of whether the image is shown
         '''
         nonlocal cv2_dev
 
         # Draw the rectangle on cv2_image
-        cv2.rectangle(cv2_dev, (x, y), (x+width, y+height), BRG_color, 2)
+        cv2.rectangle(cv2_dev, (x, y), (x+width, y+height), BGR_color, 2)
         if show:
             # Display the original image with the rectangle around the match.
             cv2.imshow('output', cv2_dev)
@@ -284,8 +284,8 @@ def read_visrep_photo(file_dir):
     def check_color_change(x1, y1, x2, y2):
         '''
         Determines whether pixels at two different coordiantes are far enough in
-        color (RGB sum difference of each pixel is greater or equal to
-        RGB_THRESHOLD) to be considered different colours.
+        color (BGR sum difference of each pixel is greater or equal to
+        BGR_THRESHOLD) to be considered different colours.
 
         PARAMETERS:
             x1 = x coordinate for first pixel to compare
@@ -298,14 +298,26 @@ def read_visrep_photo(file_dir):
         '''
         nonlocal cv2_visrep_enhance
 
-        # If the pixels at (x1, y1) and (x2, y2) are close in brightness
-        if (abs(sum(list(cv2_visrep_enhance[y1][x1])) -
-                sum(list(cv2_visrep_enhance[y2][x2])))
-                < RGB_THRESHOLD):
-            # Return False
-            return False
-        # If the pixels are not close enough in brightness, return True
-        return True
+        # Define BGR colours of the two pixels being compared
+        bgr1 = list(cv2_visrep_enhance[y1][x1])
+        bgr2 = list(cv2_visrep_enhance[y2][x2])
+
+        # If the pixels at (x1, y1) and (x2, y2) are not close in brightness
+        if (abs(sum(bgr1) - sum(bgr2)) >= BGR_THRESHOLD and
+                # If the image blacks are too bright, detecting by brightness
+                # is not reliable because same-colour pixels will have great
+                # contrast, hence the 'and black_color_ref' requirement
+                black_color_ref < 300 or
+                # Or the blue channels are far apart enough
+                abs(int(bgr1[0]) - int(bgr2[0])) >= BGR_CHANNEL_THRESHOLD or
+                # Or the green channels are far apart enough
+                abs(int(bgr1[1]) - int(bgr2[1])) >= BGR_CHANNEL_THRESHOLD or
+                # Or the red channels are far apart enough
+                abs(int(bgr1[2]) - int(bgr2[2])) >= BGR_CHANNEL_THRESHOLD):
+            # Return True
+            return True
+        # If the pixels are close enough in brightness, return False
+        return False
 
     def find_largest_contrast(coord1, coord2, coord3, coord4):
         '''

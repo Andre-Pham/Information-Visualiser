@@ -19,9 +19,13 @@ START_X, START_Y = 150, 150
 # Define png size, in pixels
 CANVAS_SIZE = (1000, 1000)
 
-# Define minimum RGB value difference for the sum of R, G and B to be treated as
+# Define minimum BGR value difference for the sum of R, G and B to be treated as
 # a different colour (smaller = more sensitive to differences)
-RGB_THRESHOLD = 95
+BGR_THRESHOLD = 95
+
+# Define minimum BGR value difference for one of R, G or B to be treated as a
+# different colour (smaller = more sensitive to differences)
+BGR_CHANNEL_THRESHOLD = 90
 
 # Define brightness threshold, based on sum([255, 255, 255])/2
 BRIGHTNESS_THRESHOLD = 382.5
