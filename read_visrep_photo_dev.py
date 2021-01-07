@@ -513,7 +513,7 @@ def read_visrep_photo(file_dir):
                 block_len/2
             )
 
-        draw_rectangle(x_limit, live_y-2*block_len, 0, 4*block_len, (255,0,187), False)
+        draw_rectangle(x_limit, live_y-block_len, 0, 2*block_len, (255,0,187), False)
 
         # Loop until live_x reaches further than the visrep's side
         while live_x < x_limit:
