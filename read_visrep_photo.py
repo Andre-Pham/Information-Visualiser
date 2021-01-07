@@ -421,17 +421,30 @@ def read_visrep_photo(file_dir):
         '''
         # Define the block row to be returned
         block_row = []
-        # Define the furthest centre x coordinate of an identity block
-        furthest_id_x = max([id2_x, id4_x])
-        # If it's an identity row, reduce the length needed to be scanned
-        # for blocks by a chunk (by a block)
+
+        # If it's the top identity row
         if identity_row == "TOP":
-            furthest_id_x = id2_x - block_len
+            # The furthest x coordinate allowed is to the left of the identity
+            x_limit = id2_x - int(block_len/2)
+        # If it's the bottom identity row
         elif identity_row == "BOTTOM":
-            furthest_id_x = id4_x - block_len
-        # Loop until live_x reaches further than the furthest side of an
-        # identity block
-        while live_x < furthest_id_x+int(block_len/2):
+            # The furthest x coordinate allowed is to the left of the identity
+            x_limit = id4_x - int(block_len/2)
+        # If it's not an identity row
+        else:
+            # Calculate the right side x coordinate of the visrep for this row
+            # (x_limit)
+            right_ids_height_diff = id4_y - id2_y
+            right_ids_width_diff = id4_x - id2_x
+            distance_down = live_y - id2_y
+            x_limit = int(
+                id2_x +
+                right_ids_width_diff*distance_down/right_ids_height_diff +
+                block_len/2
+            )
+
+        # Loop until live_x reaches further than the visrep's side
+        while live_x < x_limit:
             # Determine the colour at the current live coordinates
             # (first block)
             color = list(cv2_visrep_enhance[live_y][live_x])
