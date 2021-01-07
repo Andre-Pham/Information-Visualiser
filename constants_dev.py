@@ -23,8 +23,8 @@ CANVAS_SIZE = (1000, 1000)
 # a different colour (smaller = more sensitive to differences)
 RGB_THRESHOLD = 95
 
-# Define brightness threshold
-BRIGHTNESS_THRESHOLD = 127.5
+# Define brightness threshold, based on sum([255, 255, 255])/2
+BRIGHTNESS_THRESHOLD = 382.5
 
 # Define max length for an image before it's resized
 MAX_LENGTH = 1200

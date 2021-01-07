@@ -5,7 +5,7 @@ import cv2
 from PIL import Image, ImageEnhance, ImageStat
 import numpy as np
 # Import complimenting scripts
-from constants import *
+from constants_dev import *
 
 def check_square_shape(len_top, len_bottom, len_left, len_right):
     '''
@@ -89,92 +89,6 @@ def read_visrep_photo(file_dir):
             interpolation=cv2.INTER_AREA
         )
 
-    # Read the visrep using PIL
-    PIL_visrep = Image.open(file_dir)
-    # Identify the brightness adjustment
-    brightness_avg = ImageStat.Stat(PIL_visrep.convert("L")).mean[0]
-    if brightness_avg >= 160:
-        brightness_enhance = 1
-    elif brightness_avg <= 115:
-        brightness_enhance = 1.5
-    else:
-        brightness_enhance = 1.2
-    # Enhance the brightness
-    enhancer = ImageEnhance.Brightness(PIL_visrep)
-    PIL_visrep_enhance = enhancer.enhance(brightness_enhance)
-    # Enhance the contrast
-    enhancer = ImageEnhance.Contrast(PIL_visrep_enhance)
-    PIL_visrep_enhance = enhancer.enhance(1.5)
-
-    print(f"----------\nBRIGHTNESS AVERAGE: {brightness_avg}\n----------")
-
-    # Convert the enhanced PIL visrep to cv2
-    cv2_visrep_enhance = cv2.cvtColor(
-        np.array(PIL_visrep_enhance),
-        cv2.COLOR_RGB2BGR
-    )
-    # If the visrep is too large, resize the visrep
-    if max_length > MAX_LENGTH:
-        cv2_visrep_enhance = cv2.resize(
-            cv2_visrep_enhance,
-            (new_width, new_height),
-            interpolation=cv2.INTER_AREA
-        )
-
-    '''DEV'''
-    # Read the visrep using PIL
-    PIL_dev = Image.open(file_dir)
-    # Identify the brightness adjustment
-    brightness_avg = ImageStat.Stat(PIL_dev.convert("L")).mean[0]
-    if brightness_avg >= 160:
-        brightness_enhance = 1
-    elif brightness_avg <= 115:
-        brightness_enhance = 1.5
-    else:
-        brightness_enhance = 1.2
-    # Enhance the brightness
-    enhancer = ImageEnhance.Brightness(PIL_dev)
-    PIL_dev_enhance = enhancer.enhance(brightness_enhance)
-    # Enhance the contrast
-    enhancer = ImageEnhance.Contrast(PIL_dev_enhance)
-    PIL_dev_enhance = enhancer.enhance(1.5)
-
-    # Convert the enhanced PIL visrep to cv2
-    cv2_dev = cv2.cvtColor(
-        np.array(PIL_dev_enhance),
-        cv2.COLOR_RGB2BGR
-    )
-    # If the visrep is too large, resize the visrep
-    if max_length > MAX_LENGTH:
-        cv2_dev = cv2.resize(
-            cv2_dev,
-            (new_width, new_height),
-            interpolation=cv2.INTER_AREA
-        )
-    '''DEV END'''
-
-    def draw_rectangle(x, y, width, height, BRG_color, show):
-        '''
-        Draws a rectangle over given coordinates. Image is shown if shown=True.
-
-        PARAMETERS:
-            x = top left x coordinate
-            y = top left y coordiante
-            width = width of rectangle, in pixels
-            height = height of rectangle, in pixels
-            RGB_color = tuple color of the outline, e.g. (0, 0, 0)
-            show = boolean of whether the image is shown
-        '''
-        nonlocal cv2_dev
-
-        # Draw the rectangle on cv2_image
-        cv2.rectangle(cv2_dev, (x, y), (x+width, y+height), BRG_color, 2)
-        if show:
-            # Display the original image with the rectangle around the match.
-            cv2.imshow('output', cv2_dev)
-            # The image is only displayed if we call this
-            cv2.waitKey(0)
-
     def find_identity(cv2_target):
         '''
         Uses cv2 image matching to identify the location of a given identity
@@ -216,6 +130,156 @@ def read_visrep_photo(file_dir):
         start_y = int((4*match_y + target_height)/4)
 
         return identity_x, identity_y, start_x, start_y
+
+    # Define the final 2D matrix to be returned
+    visrep_matrix = []
+
+    # Read the reference identity images from their file
+    target_image1 = cv2.imread(DIR_ID1)
+    target_image2 = cv2.imread(DIR_ID2)
+    target_image3 = cv2.imread(DIR_ID3)
+    target_image4 = cv2.imread(DIR_ID4)
+    # This loop continuously defines the identity block locations, checks if
+    # they form a valid square, crops the images if they aren't a valid
+    # square, then repeats the process
+    while True:
+        # Define the centre (id#_x, id#_y) of each identity block, as well
+        # as start_x and start_y, which are the starting points for finding
+        # the gap size and chunk size
+        try:
+            id1_x, id1_y, start_x, start_y = find_identity(target_image1)
+        except:
+            print("ERROR: Count not find identity block #1")
+            return
+        try:
+            id2_x, id2_y, _, _ = find_identity(target_image2)
+        except:
+            print("ERROR: Count not find identity block #2")
+            return
+        try:
+            id3_x, id3_y, _, _ = find_identity(target_image3)
+        except:
+            print("ERROR: Count not find identity block #3")
+            return
+        try:
+            id4_x, id4_y, _, _ = find_identity(target_image4)
+        except:
+            print("ERROR: Count not find identity block #4")
+            return
+
+        # Determines if the defined positions of the identity blocks form a
+        # square (and hence the identity block locations found are valid)
+        if check_square_shape(
+                len_top=id2_x-id1_x,
+                len_bottom=id4_x-id3_x,
+                len_left=id3_y-id1_y,
+                len_right=id4_y-id2_y):
+            break
+
+        # If the identity block locations aren't valid, crop the refernce
+        # identity block images to 90% their size
+        # (this is due to cv2 struggling to find matching images if their
+        # sizes are different)
+        target_image1 = crop_image(target_image1)
+        target_image2 = crop_image(target_image2)
+        target_image3 = crop_image(target_image3)
+        target_image4 = crop_image(target_image4)
+
+    # Read the visrep using PIL
+    PIL_visrep = Image.open(file_dir)
+    # Identify the brightness adjustment
+    # 1. Identify four known black pixels (next to each other)
+    black_color_ref_list = [
+        sum(list(cv2_visrep[start_y-1][start_x-1])),
+        sum(list(cv2_visrep[start_y-1][start_x])),
+        sum(list(cv2_visrep[start_y][start_x])),
+        sum(list(cv2_visrep[start_y][start_x-1]))
+    ]
+    # 2. Average the RGB colour value to estimate the average black pixel colour
+    black_color_ref = sum(black_color_ref_list)/4
+    print(f"----------\nBLACK_REF: {black_color_ref}\n----------")
+    # 3. Determine the amount of brightness adjustment needed relative to how
+    # bright the estimated average black pixel is
+    # (based on fitted cubic graph using points [52, 1.7], [164.5, 1.2],
+    # [381, 0.7] which were collected from testing images)
+    brightness_enhance = (
+        6.4893*10**-6*black_color_ref**2 -
+        5.8494*10**-3*black_color_ref +
+        1.9866
+    )
+    # Enhance the brightness
+    enhancer = ImageEnhance.Brightness(PIL_visrep)
+    PIL_visrep_enhance = enhancer.enhance(brightness_enhance)
+    # Identify contrast adjustment
+    # (based on fitted cubic graph using points [52, 1.3], [164.5, 1.5],
+    # [381, 2] which were collected from testing images)
+    contrast_enhance = (
+        1.6161*10**-6*black_color_ref**2 +
+        1.4279*10**-3*black_color_ref +
+        1.2214
+    )
+    # Enhance the contrast
+    enhancer = ImageEnhance.Contrast(PIL_visrep_enhance)
+    PIL_visrep_enhance = enhancer.enhance(contrast_enhance)
+
+    # Convert the enhanced PIL visrep to cv2
+    cv2_visrep_enhance = cv2.cvtColor(
+        np.array(PIL_visrep_enhance),
+        cv2.COLOR_RGB2BGR
+    )
+    # If the visrep is too large, resize the visrep
+    if max_length > MAX_LENGTH:
+        cv2_visrep_enhance = cv2.resize(
+            cv2_visrep_enhance,
+            (new_width, new_height),
+            interpolation=cv2.INTER_AREA
+        )
+
+    '''DEV'''
+    # Read the visrep using PIL
+    PIL_dev = Image.open(file_dir)
+    # Enhance the brightness
+    enhancer = ImageEnhance.Brightness(PIL_dev)
+    PIL_dev_enhance = enhancer.enhance(brightness_enhance)
+    # Enhance the contrast
+    enhancer = ImageEnhance.Contrast(PIL_dev_enhance)
+    PIL_dev_enhance = enhancer.enhance(contrast_enhance)
+
+    # Convert the enhanced PIL visrep to cv2
+    cv2_dev = cv2.cvtColor(
+        np.array(PIL_dev_enhance),
+        cv2.COLOR_RGB2BGR
+    )
+    # If the visrep is too large, resize the visrep
+    if max_length > MAX_LENGTH:
+        cv2_dev = cv2.resize(
+            cv2_dev,
+            (new_width, new_height),
+            interpolation=cv2.INTER_AREA
+        )
+    '''DEV END'''
+
+    def draw_rectangle(x, y, width, height, BRG_color, show):
+        '''
+        Draws a rectangle over given coordinates. Image is shown if shown=True.
+
+        PARAMETERS:
+            x = top left x coordinate
+            y = top left y coordiante
+            width = width of rectangle, in pixels
+            height = height of rectangle, in pixels
+            RGB_color = tuple color of the outline, e.g. (0, 0, 0)
+            show = boolean of whether the image is shown
+        '''
+        nonlocal cv2_dev
+
+        # Draw the rectangle on cv2_image
+        cv2.rectangle(cv2_dev, (x, y), (x+width, y+height), BRG_color, 2)
+        if show:
+            # Display the original image with the rectangle around the match.
+            cv2.imshow('output', cv2_dev)
+            # The image is only displayed if we call this
+            cv2.waitKey(0)
 
     def check_color_change(x1, y1, x2, y2):
         '''
@@ -371,60 +435,6 @@ def read_visrep_photo(file_dir):
         gap_size = pixel_count
 
         return block_len, gap_size
-
-    # Define the final 2D matrix to be returned
-    visrep_matrix = []
-
-    # Read the reference identity images from their file
-    target_image1 = cv2.imread(DIR_ID1)
-    target_image2 = cv2.imread(DIR_ID2)
-    target_image3 = cv2.imread(DIR_ID3)
-    target_image4 = cv2.imread(DIR_ID4)
-    # This loop continuously defines the identity block locations, checks if
-    # they form a valid square, crops the images if they aren't a valid
-    # square, then repeats the process
-    while True:
-        # Define the centre (id#_x, id#_y) of each identity block, as well
-        # as start_x and start_y, which are the starting points for finding
-        # the gap size and chunk size
-        try:
-            id1_x, id1_y, start_x, start_y = find_identity(target_image1)
-        except:
-            print("ERROR: Count not find identity block #1")
-            return
-        try:
-            id2_x, id2_y, _, _ = find_identity(target_image2)
-        except:
-            print("ERROR: Count not find identity block #2")
-            return
-        try:
-            id3_x, id3_y, _, _ = find_identity(target_image3)
-        except:
-            print("ERROR: Count not find identity block #3")
-            return
-        try:
-            id4_x, id4_y, _, _ = find_identity(target_image4)
-        except:
-            print("ERROR: Count not find identity block #4")
-            return
-
-        # Determines if the defined positions of the identity blocks form a
-        # square (and hence the identity block locations found are valid)
-        if check_square_shape(
-                len_top=id2_x-id1_x,
-                len_bottom=id4_x-id3_x,
-                len_left=id3_y-id1_y,
-                len_right=id4_y-id2_y):
-            break
-
-        # If the identity block locations aren't valid, crop the refernce
-        # identity block images to 90% their size
-        # (this is due to cv2 struggling to find matching images if their
-        # sizes are different)
-        target_image1 = crop_image(target_image1)
-        target_image2 = crop_image(target_image2)
-        target_image3 = crop_image(target_image3)
-        target_image4 = crop_image(target_image4)
 
     # Calculate chunk size and gap size
     block_len, gap_size = find_sizes(start_x, start_y)
@@ -645,5 +655,9 @@ def read_visrep_photo(file_dir):
     )
 
     draw_rectangle(0, 0, 0, 0, (0, 0, 0), True)
+    print("--------FOUND MATRIX----------")
+    for block in visrep_matrix:
+        print(block)
+    print("------------------------------")
 
     return visrep_matrix
