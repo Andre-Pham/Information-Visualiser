@@ -565,7 +565,10 @@ def read_visrep_photo(file_dir):
         )
         pixel_count += pixel_count_add_x
         adjust_x = int(pixel_count - block_len/2)
-        live_x += adjust_x
+        # Only adjust x if the adjustment is smaller than a block length to
+        # avoid errors of over-correction
+        if adjust_x < block_len:
+            live_x += adjust_x
 
         # Adjust live_y to the vertical centre of the block which was just
         # read (the starting block of the new row to be scanned)
@@ -582,7 +585,10 @@ def read_visrep_photo(file_dir):
         )
         pixel_count += pixel_count_add_y
         adjust_y = int(pixel_count - block_len/2)
-        live_y += adjust_y
+        # Only adjust y if the adjustment is smaller than a block length to
+        # avoid errors of over-correction
+        if adjust_y < block_len:
+            live_y += adjust_y
 
     # Redefine live x and y to be at the estimated centre of the first block
     # of the top identity row
