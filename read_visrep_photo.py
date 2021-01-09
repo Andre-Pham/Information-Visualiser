@@ -89,7 +89,7 @@ def read_visrep_photo(file_dir):
             interpolation=cv2.INTER_AREA
         )
 
-    def find_identity(cv2_target):
+    def find_identity(cv2_target, method):
         '''
         Uses cv2 image matching to identify the location of a given identity
         block.
@@ -107,8 +107,6 @@ def read_visrep_photo(file_dir):
         '''
         nonlocal cv2_visrep
 
-        # Define method for matching
-        method = cv2.TM_SQDIFF_NORMED
         # Define the width and height of the target image
         target_width, target_height = cv2_target.shape[:2]
 
@@ -139,6 +137,8 @@ def read_visrep_photo(file_dir):
     target_image2 = cv2.imread(DIR_ID2)
     target_image3 = cv2.imread(DIR_ID3)
     target_image4 = cv2.imread(DIR_ID4)
+    # Define method for matching images
+    method = cv2.TM_SQDIFF_NORMED
     # This loop continuously defines the identity block locations, checks if
     # they form a valid square, crops the images if they aren't a valid
     # square, then repeats the process
@@ -146,10 +146,10 @@ def read_visrep_photo(file_dir):
         # Define the centre (id#_x, id#_y) of each identity block, as well
         # as start_x and start_y, which are the starting points for finding
         # the gap size and chunk size
-        id1_x, id1_y, start_x, start_y = find_identity(target_image1)
-        id2_x, id2_y, _, _ = find_identity(target_image2)
-        id3_x, id3_y, _, _ = find_identity(target_image3)
-        id4_x, id4_y, _, _ = find_identity(target_image4)
+        id1_x, id1_y, start_x, start_y = find_identity(target_image1, method)
+        id2_x, id2_y, _, _ = find_identity(target_image2, method)
+        id3_x, id3_y, _, _ = find_identity(target_image3, method)
+        id4_x, id4_y, _, _ = find_identity(target_image4, method)
 
         # Determines if the defined positions of the identity blocks form a
         # square (and hence the identity block locations found are valid)
@@ -165,6 +165,14 @@ def read_visrep_photo(file_dir):
         # (this is due to cv2 struggling to find matching images if their
         # sizes are different)
         target_image1 = crop_image(target_image1)
+        # If the identity blocks can't be found, use a different matching method
+        if target_image1.shape[0] < 15 and method == cv2.TM_SQDIFF_NORMED:
+            target_image1 = cv2.imread(DIR_ID1)
+            target_image2 = cv2.imread(DIR_ID2)
+            target_image3 = cv2.imread(DIR_ID3)
+            target_image4 = cv2.imread(DIR_ID4)
+            method = cv2.TM_SQDIFF
+            continue
         target_image2 = crop_image(target_image2)
         target_image3 = crop_image(target_image3)
         target_image4 = crop_image(target_image4)
