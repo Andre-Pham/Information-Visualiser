@@ -240,6 +240,11 @@ class Interface:
         Generates text from a visrep image file, selected via file explorer.
         Activates from "Select Image" button.
         '''
+        self.live_text_box.config(
+            text="Loading...",
+            bg=LOAD_COLOR,
+            fg=TEXT_COLOR_HIGHLIGHT
+        )
         visrep_dir = self.select_image()
         visrep_matrix = read_visrep_photo(visrep_dir)
         text_output = read_visrep_matrix(visrep_matrix)

@@ -42,6 +42,7 @@ BUTTON_COLOR = "#ee4f4f"
 FONT = "System"
 SUCCESS_COLOR = "#22c95d"
 FAIL_COLOR = "#ee4f4f"
+LOAD_COLOR = "#ffad14"
 BUTTON_WIDTH = 14
 
 # Define directory of identity block reference images

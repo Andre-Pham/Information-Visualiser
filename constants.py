@@ -38,10 +38,11 @@ BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"
 TEXT_COLOR_HIGHLIGHT = "white"
 TEXTBOX_COLOR = "#d0d0d0"
-BUTTON_COLOR = "#8a69f3"
+BUTTON_COLOR = "#7e56fb"
 FONT = "System"
 SUCCESS_COLOR = "#22c95d"
 FAIL_COLOR = "#ee4f4f"
+LOAD_COLOR = "#ffad14"
 BUTTON_WIDTH = 14
 
 # Define directory of identity block reference images
