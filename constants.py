@@ -33,6 +33,10 @@ BRIGHTNESS_THRESHOLD = 382.5
 # Define max length for an image before it's resized
 MAX_LENGTH = 1200
 
+# Define how many pixels the reference identity blocks are expanded by for each
+# iteration of searching for a match
+ID_RESIZE_INCREMENT = 8
+
 # Define aesthetic interface constants
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"

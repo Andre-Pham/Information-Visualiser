@@ -35,29 +35,31 @@ def check_square_shape(len_top, len_bottom, len_left, len_right):
     # Otherwise, the polygon is a square
     return True
 
-def crop_image(cv2_image):
+def expand_image(cv2_image):
     '''
-    Crops a square image. Crops all sides evenly. Intended for identity block
-    reference images.
-    The reason for cropping is that if the identity block reference images are
+    Expands a square image. Expands all sides evenly. Intended for identity
+    block reference images.
+    The reason for expanding is that if the identity block reference images are
     too small or too large for the visrep image being scanned, the identity
     blocks won't be able to be found.
 
     PARAMETERS:
         cv2_image = image file ran through cv2.imread()
     OUTPUT:
-        The provided cv2_image, cropped.
+        The provided cv2_image, expanded.
     '''
-    # Determine the height (width, height = length because image is square)
+    # Determine the length (width and height = length because image is square)
     length, _, _ = cv2_image.shape
-    # Determine what 90% of the length is, as an integer
-    new_length = int(length*0.9)
-    # Ensure the new length is an even number (for equal padding)
-    new_length -= new_length%2
-    # Calculate the padding on the top/bottom/left/right
-    padding = int((length - new_length)/2)
-    # Return the cropped image
-    return cv2_image[padding:padding+new_length, padding:padding+new_length]
+    # Determine the new length
+    new_length = length + ID_RESIZE_INCREMENT
+    # Expand the image
+    cv2_image = cv2.resize(
+        cv2_image,
+        (new_length, new_length),
+        interpolation = cv2.INTER_NEAREST
+    )
+    # Return the expanded image
+    return cv2_image
 
 def read_visrep_photo(file_dir):
     '''
@@ -160,22 +162,22 @@ def read_visrep_photo(file_dir):
                 len_right=id4_y-id2_y):
             break
 
-        # If the identity block locations aren't valid, crop the refernce
-        # identity block images to 90% their size
+        # If the identity block locations aren't valid, expand the refernce
+        # identity block images
         # (this is due to cv2 struggling to find matching images if their
         # sizes are different)
-        target_image1 = crop_image(target_image1)
+        target_image1 = expand_image(target_image1)
         # If the identity blocks can't be found, use a different matching method
-        if target_image1.shape[0] < 15 and method == cv2.TM_SQDIFF_NORMED:
+        if target_image1.shape[0] > 60 and method == cv2.TM_SQDIFF_NORMED:
             target_image1 = cv2.imread(DIR_ID1)
             target_image2 = cv2.imread(DIR_ID2)
             target_image3 = cv2.imread(DIR_ID3)
             target_image4 = cv2.imread(DIR_ID4)
             method = cv2.TM_SQDIFF
             continue
-        target_image2 = crop_image(target_image2)
-        target_image3 = crop_image(target_image3)
-        target_image4 = crop_image(target_image4)
+        target_image2 = expand_image(target_image2)
+        target_image3 = expand_image(target_image3)
+        target_image4 = expand_image(target_image4)
 
     # Read the visrep using PIL
     PIL_visrep = Image.open(file_dir)
