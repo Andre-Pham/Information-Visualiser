@@ -192,23 +192,25 @@ def read_visrep_photo(file_dir):
     print(f"----------\nBLACK_REF: {black_color_ref}\n----------")
     # 3. Determine the amount of brightness adjustment needed relative to how
     # bright the estimated average black pixel is
-    # (based on fitted cubic graph using points [52, 1.7], [164.5, 1.2],
-    # [381, 0.7] which were collected from testing images)
+    # (based on fitted cubic graph using points [0, 1.7], [52, 1.6],
+    # [164.5, 1.2], [381, 0.7] which were collected from testing images)
     brightness_enhance = (
-        6.4893*10**-6*black_color_ref**2 -
-        5.8494*10**-3*black_color_ref +
-        1.9866
+        3.5988E-8*black_color_ref**3 -
+        1.7715E-5*black_color_ref**2 -
+        1.0992E-3*black_color_ref +
+        1.7000
     )
     # Enhance the brightness
     enhancer = ImageEnhance.Brightness(PIL_visrep)
     PIL_visrep_enhance = enhancer.enhance(brightness_enhance)
     # Identify contrast adjustment
-    # (based on fitted cubic graph using points [52, 1.3], [164.5, 1.5],
+    # (based on fitted cubic graph using points [0, 1], [52, 1.3], [164.5, 1.5],
     # [381, 2] which were collected from testing images)
     contrast_enhance = (
-        1.6161*10**-6*black_color_ref**2 +
-        1.4279*10**-3*black_color_ref +
-        1.2214
+        6.7927E-08*black_color_ref**3 -
+        3.8970E-05*black_color_ref**2 +
+        7.6120E-03*black_color_ref +
+        1.0000
     )
     # Enhance the contrast
     enhancer = ImageEnhance.Contrast(PIL_visrep_enhance)
