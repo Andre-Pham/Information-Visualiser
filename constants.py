@@ -36,6 +36,10 @@ MAX_LENGTH = 1200
 # Define how many pixels the reference identity blocks are expanded by for each
 # iteration of searching for a match
 ID_RESIZE_INCREMENT = 8
+ID_RESIZE_COMPOUND = 1.5
+
+# Define how long the reference identity blocks must be before compounding size
+ID_RESIZE_COMPOUND_THRESHOLD = 42
 
 # Define aesthetic interface constants
 BACKGROUND_COLOR = "white"

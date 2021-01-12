@@ -51,7 +51,12 @@ def expand_image(cv2_image):
     # Determine the length (width and height = length because image is square)
     length, _, _ = cv2_image.shape
     # Determine the new length
-    new_length = length + ID_RESIZE_INCREMENT
+    if length >= ID_RESIZE_COMPOUND_THRESHOLD:
+        new_length = int(length*ID_RESIZE_COMPOUND)
+        # Make new_length an even number so there's equal black/white pixels
+        new_length -= new_length%2
+    else:
+        new_length = length + ID_RESIZE_INCREMENT
     # Expand the image
     cv2_image = cv2.resize(
         cv2_image,
@@ -141,6 +146,8 @@ def read_visrep_photo(file_dir):
     target_image4 = cv2.imread(DIR_ID4)
     # Define method for matching images
     method = cv2.TM_SQDIFF_NORMED
+    # Define the minimum length of the visrep image
+    cv2_visrep_min_length = min([cv2_visrep.shape[0], cv2_visrep.shape[1]])
     # This loop continuously defines the identity block locations, checks if
     # they form a valid square, crops the images if they aren't a valid
     # square, then repeats the process
@@ -175,6 +182,8 @@ def read_visrep_photo(file_dir):
             target_image4 = cv2.imread(DIR_ID4)
             method = cv2.TM_SQDIFF
             continue
+        if target_image1.shape[0] > cv2_visrep_min_length/10:
+            raise Exception("No identity blocks found")
         target_image2 = expand_image(target_image2)
         target_image3 = expand_image(target_image3)
         target_image4 = expand_image(target_image4)
