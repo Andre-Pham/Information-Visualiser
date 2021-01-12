@@ -174,15 +174,18 @@ def read_visrep_photo(file_dir):
         # (this is due to cv2 struggling to find matching images if their
         # sizes are different)
         target_image1 = expand_image(target_image1)
-        # If the identity blocks can't be found, use a different matching method
+        # If the identity blocks can't be found
         if target_image1.shape[0] > 60 and method == cv2.TM_SQDIFF_NORMED:
+            # Use a different matching method
             target_image1 = cv2.imread(DIR_ID1)
             target_image2 = cv2.imread(DIR_ID2)
             target_image3 = cv2.imread(DIR_ID3)
             target_image4 = cv2.imread(DIR_ID4)
             method = cv2.TM_SQDIFF
             continue
+        # If the identity blocks still can't be found
         if target_image1.shape[0] > cv2_visrep_min_length/10:
+            # Give up searching
             raise Exception("No identity blocks found")
         target_image2 = expand_image(target_image2)
         target_image3 = expand_image(target_image3)
