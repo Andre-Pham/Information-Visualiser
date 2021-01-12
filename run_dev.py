@@ -110,7 +110,8 @@ class Interface:
         window.geometry(geometry)
         window.title(title)
         window.configure(bg=bg)
-        window.iconbitmap(DIR_LOGO)
+        if not MAC:
+            window.iconbitmap(DIR_LOGO)
 
         # Set grid configurations of interface
         window.grid_rowconfigure(0, weight=0)

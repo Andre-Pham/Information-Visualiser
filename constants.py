@@ -1,5 +1,13 @@
 # Defines the constants that the other files use, for quick access
 
+# Determine if the OS is MacOS (used for determining directories, logo and font)
+import sys
+if sys.platform.startswith("darwin"):
+    MAC = True
+    MAC_DIR = __file__[:__file__.rfind("/")+1]
+else:
+    MAC = False
+
 # Define how many pixels wide are the blocks that make up the visrep
 BLOCK_WIDTH = 15
 
@@ -45,6 +53,8 @@ ID_RESIZE_COMPOUND_THRESHOLD = 42
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"
 TEXT_COLOR_HIGHLIGHT = "white"
+if MAC:
+    TEXT_COLOR_HIGHLIGHT = "black"
 TEXTBOX_COLOR = "#d0d0d0"
 BUTTON_COLOR = "#7e56fb"
 FONT = "System"
@@ -58,6 +68,11 @@ DIR_ID1 = "resources/identity1.png"
 DIR_ID2 = "resources/identity2.png"
 DIR_ID3 = "resources/identity3.png"
 DIR_ID4 = "resources/identity4.png"
+if MAC:
+    DIR_ID1 = MAC_DIR + DIR_ID1
+    DIR_ID2 = MAC_DIR + DIR_ID2
+    DIR_ID3 = MAC_DIR + DIR_ID3
+    DIR_ID4 = MAC_DIR + DIR_ID4
 
 # Define directory of logo
 DIR_LOGO = "resources/logo.ico"
