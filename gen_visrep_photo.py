@@ -103,6 +103,19 @@ def gen_visrep_photo(visrep_matrix, option):
         live_x = START_X
         live_y += BLOCK_WIDTH + BLOCK_GAP
 
+    # Find the bottom right corner coordinates of the canvas
+    end = (
+        START_X*2 +
+        BLOCK_WIDTH*len(visrep_matrix) +
+        BLOCK_GAP*(len(visrep_matrix) - 1)
+    )
+
+    # Crop canvas
+    canvas = canvas.crop(
+        # Left, top, right, bottom
+        (0, 0, end, end)
+    )
+
     # Display the visrep png
     if option == "show":
         canvas.show()

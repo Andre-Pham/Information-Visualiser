@@ -9,7 +9,7 @@ else:
     MAC = False
 
 # Define how many pixels wide are the blocks that make up the visrep
-BLOCK_WIDTH = 16
+BLOCK_WIDTH = 40
 
 # Define how many pixels between each block that makes up the visrep
 BLOCK_GAP = BLOCK_WIDTH/4
@@ -22,10 +22,10 @@ INIT_BIT_COUNT = 4
 VISREP_COLOR = (138, 105, 243)
 
 # Define top-left starting pixel coordinate for visrep png
-START_X, START_Y = 150, 150
+START_X, START_Y = 80, 80
 
 # Define png size, in pixels
-CANVAS_SIZE = (1000, 1000)
+CANVAS_SIZE = (2000, 2000)
 
 # Define minimum BGR value difference for the sum of R, G and B to be treated as
 # a different colour (smaller = more sensitive to differences)
