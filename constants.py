@@ -24,9 +24,6 @@ VISREP_COLOR = (138, 105, 243)
 # Define top-left starting pixel coordinate for visrep png
 START_X, START_Y = 80, 80
 
-# Define png size, in pixels
-CANVAS_SIZE = (2000, 2000)
-
 # Define minimum BGR value difference for the sum of R, G and B to be treated as
 # a different colour (smaller = more sensitive to differences)
 BGR_THRESHOLD = 95

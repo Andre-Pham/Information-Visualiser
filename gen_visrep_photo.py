@@ -15,10 +15,16 @@ def gen_visrep_photo(visrep_matrix, option):
         option = if option="show", the image is shown to the user, if option is
             a directory, the image is saved to that directory
     '''
+    # Find length of canvas
+    canvas_len = int(
+        START_X*2 +
+        BLOCK_WIDTH*len(visrep_matrix) +
+        BLOCK_GAP*(len(visrep_matrix) - 1)
+    )
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
     # Define the png canvas
-    canvas = Image.new('RGB', CANVAS_SIZE, color=VISREP_COLOR)
+    canvas = Image.new('RGB', (canvas_len, canvas_len), color=VISREP_COLOR)
     # Define modification layer of the png canvas
     canvas_draw = ImageDraw.Draw(canvas)
 
@@ -102,19 +108,6 @@ def gen_visrep_photo(visrep_matrix, option):
         # drawn
         live_x = START_X
         live_y += BLOCK_WIDTH + BLOCK_GAP
-
-    # Find the bottom right corner coordinates of the canvas
-    end = (
-        START_X*2 +
-        BLOCK_WIDTH*len(visrep_matrix) +
-        BLOCK_GAP*(len(visrep_matrix) - 1)
-    )
-
-    # Crop canvas
-    canvas = canvas.crop(
-        # Left, top, right, bottom
-        (0, 0, end, end)
-    )
 
     # Display the visrep png
     if option == "show":
