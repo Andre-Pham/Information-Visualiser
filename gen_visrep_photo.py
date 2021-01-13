@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 # Import complimenting scripts
 from constants import *
 
-def gen_visrep_photo(visrep_matrix, option):
+def gen_visrep_photo(visrep_matrix, color, option):
     '''
     Generates and shows a png that represents a visrep via blocks that are
     coloured black and white.
@@ -24,7 +24,7 @@ def gen_visrep_photo(visrep_matrix, option):
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
     # Define the png canvas
-    canvas = Image.new('RGB', (canvas_len, canvas_len), color=VISREP_COLOR)
+    canvas = Image.new('RGB', (canvas_len, canvas_len), color=color)
     # Define modification layer of the png canvas
     canvas_draw = ImageDraw.Draw(canvas)
 

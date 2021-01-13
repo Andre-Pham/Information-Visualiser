@@ -69,6 +69,18 @@ def common_text_output():
         fg=TEXT_COLOR
     )
 
+def common_option_menu(variable, *options):
+    '''
+    A dropdown menu object with all consistent aesthetic features for dropdown 
+    menus used in the interface.
+    '''
+    variable.set(options[0])
+    return tk.OptionMenu(
+        window,
+        variable,
+        *options
+    )
+
 def common_popup(title, message):
     '''
     A popup object with all consistent aesthetic features for popup boxes used
@@ -105,6 +117,8 @@ class Interface:
         self.drawn_elements = []
         # Define current textbox object in use, so that it can easily be updated
         self.live_text_box = None
+        # Define current dropdown object in use, so that it can easily be read
+        self.live_dropdown = tk.StringVar(window)
 
         # Set properties of interface
         window.geometry(geometry)
@@ -129,6 +143,7 @@ class Interface:
         self.gen_visrep_elements = [
             common_title("Text to VISREP [DEVELOPER MODE]"),
             common_text_input(),
+            common_option_menu(self.live_dropdown, "Purple", "Red", "Green", "Blue", "Pink"),
             common_button("Generate VISREP", lambda: self.generate_visrep_button()),
             common_button("Save VISREP", lambda: self.save_visrep_button()),
             common_button("Main Menu", lambda: self.draw_main_menu())
@@ -209,8 +224,9 @@ class Interface:
         '''
         try:
             text_input = self.live_text_box.get('1.0', tk.END).strip("\n")
+            color_input = eval(f"VISREP_BG_{self.live_dropdown.get().upper()}")
             visrep = gen_visrep_matrix(text_input)
-            gen_visrep_photo(visrep, "show")
+            gen_visrep_photo(visrep, color_input, "show")
         except:
             common_popup(
                 "An Error Occured",
@@ -224,8 +240,9 @@ class Interface:
         '''
         try:
             text_input = self.live_text_box.get('1.0', tk.END).strip("\n")
+            color_input = eval(f"VISREP_BG_{self.live_dropdown.get().upper()}")
             visrep = gen_visrep_matrix(text_input)
-            gen_visrep_photo(visrep, self.select_save_dir(text_input))
+            gen_visrep_photo(visrep, color_input, self.select_save_dir(text_input))
             common_popup(
                 "File Save Successful",
                 "The file was saved successfully."
@@ -300,7 +317,7 @@ class Interface:
 
 # Set up window
 window = tk.Tk()
-interface = Interface(window, "450x215", "VISREP", BACKGROUND_COLOR)
+interface = Interface(window, "450x250", "VISREP", BACKGROUND_COLOR)
 interface.draw_main_menu()
 
 # Run window
