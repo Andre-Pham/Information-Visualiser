@@ -320,7 +320,7 @@ class Interface:
 
 # Set up window
 window = tk.Tk()
-interface = Interface(window, "450x250", "VISREP", BACKGROUND_COLOR)
+interface = Interface(window, "450x255", "VISREP", BACKGROUND_COLOR)
 interface.draw_main_menu()
 
 # Run window
