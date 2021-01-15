@@ -696,41 +696,70 @@ def read_visrep_photo(frame):
     return visrep_matrix
 
 
-video = cv2.VideoCapture(0)
 
-frame_num = 0
 
-read_frames = []
+from threading import Thread
 
-while True:
-    # Capture frame by frame
-    ret, frame = video.read()
-    frame_num += 1
+def show():
+    video = cv2.VideoCapture(0)
 
-    # Analyse frame here
-    if frame_num%60 == 0:
-        try:
-            matrix = read_visrep_photo(frame)
-            #print(matrix)
-            for row in matrix:
-                if len(row) != len(matrix):
-                    raise Exception("Invalid visrep reading")
-            if matrix in read_frames:
-                print(matrix)
-                read_frames = []
-            else:
-                read_frames.append(matrix)
-        except:
-            print("no visrep found")
+    frame_num = 0
 
-    # Flip video
-    frame = cv2.flip(frame, 1)
+    read_frames = []
+    while True:
+        # Capture frame by frame
+        ret, frame = video.read()
+        frame_num += 1
 
-    # Display video
-    cv2.imshow("webcam (ESC to quit)", frame)
+        # Flip video
+        frame = cv2.flip(frame, 1)
 
-    if cv2.waitKey(1) == 27:
-        break # esc to quit
+        # Display video
+        cv2.imshow("webcam (ESC to quit)", frame)
 
-video.release()
-cv2.destroyAllWindows()
+        if cv2.waitKey(1) == 27:
+            break # esc to quit
+
+    video.release()
+    cv2.destroyAllWindows()
+    return
+
+def read():
+    video = cv2.VideoCapture(0)
+
+    frame_num = 0
+
+    read_frames = []
+    while True:
+        # Capture frame by frame
+        ret, frame = video.read()
+        frame_num += 1
+
+        # Analyse frame here
+        if frame_num%20 == 0:
+            try:
+                matrix = read_visrep_photo(frame)
+                #print(matrix)
+                for row in matrix:
+                    if len(row) != len(matrix):
+                        raise Exception("Invalid visrep reading")
+                if matrix in read_frames:
+                    print(matrix)
+                    read_frames = []
+                else:
+                    read_frames.append(matrix)
+            except:
+                print("no visrep found")
+
+        if cv2.waitKey(1) == 27:
+            break # esc to quit'
+
+    video.release()
+    cv2.destroyAllWindows()
+    return
+
+analyse = Thread(target=read)
+analyse.daemon = True # This closes all (daemon) threads when the main thread ends; when video stops
+analyse.start()
+show()
+#analyse.setDaemon()
