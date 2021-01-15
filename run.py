@@ -74,10 +74,11 @@ def common_popup(title, message):
     A popup object with all consistent aesthetic features for popup boxes used
     in the interface.
     '''
-    popup=tk.Toplevel()
+    popup = tk.Toplevel()
     popup.geometry("350x100")
     popup.title(title)
-    popup.iconbitmap(DIR_LOGO)
+    if not sys.platform.startswith("darwin"):
+        popup.iconbitmap(DIR_LOGO)
     tk.Label(
         popup,
         text=message,
@@ -105,12 +106,14 @@ class Interface:
         self.drawn_elements = []
         # Define current textbox object in use, so that it can easily be updated
         self.live_text_box = None
+        # Define current dropdown object in use, so that it can easily be read
+        self.live_dropdown = tk.StringVar(window)
 
         # Set properties of interface
         window.geometry(geometry)
         window.title(title)
         window.configure(bg=bg)
-        if not MAC:
+        if not sys.platform.startswith("darwin"):
             window.iconbitmap(DIR_LOGO)
 
         # Set grid configurations of interface
@@ -129,6 +132,7 @@ class Interface:
         self.gen_visrep_elements = [
             common_title("Text to VISREP"),
             common_text_input(),
+            common_button("PURPLE", lambda: self.change_color_button()),
             common_button("Generate VISREP", lambda: self.generate_visrep_button()),
             common_button("Save VISREP", lambda: self.save_visrep_button()),
             common_button("Main Menu", lambda: self.draw_main_menu())
@@ -209,8 +213,10 @@ class Interface:
         '''
         try:
             text_input = self.live_text_box.get('1.0', tk.END).strip("\n")
+            color_input = self.gen_visrep_elements[2]['text']
+            color_input_rgb = eval(f"VISREP_BG_{color_input}")
             visrep = gen_visrep_matrix(text_input)
-            gen_visrep_photo(visrep, "show")
+            gen_visrep_photo(visrep, color_input_rgb, "show")
         except:
             common_popup(
                 "An Error Occured",
@@ -224,8 +230,10 @@ class Interface:
         '''
         try:
             text_input = self.live_text_box.get('1.0', tk.END).strip("\n")
+            color_input = self.gen_visrep_elements[2]['text']
+            color_input_rgb = eval(f"VISREP_BG_{color_input}")
             visrep = gen_visrep_matrix(text_input)
-            gen_visrep_photo(visrep, self.select_save_dir(text_input))
+            gen_visrep_photo(visrep, color_input_rgb, self.select_save_dir(text_input))
             common_popup(
                 "File Save Successful",
                 "The file was saved successfully."
@@ -262,6 +270,19 @@ class Interface:
                 fg=TEXT_COLOR_HIGHLIGHT
             )
 
+    def change_color_button(self):
+        colors = ["PURPLE", "RED", "GREEN", "BLUE", "PINK"]
+        current_color = self.gen_visrep_elements[2]['text']
+        try:
+            new_color = colors[colors.index(current_color)+1]
+        except:
+            new_color = "PURPLE"
+        new_color_rgb = eval(f"VISREP_BG_{new_color}")
+        self.gen_visrep_elements[2].configure(
+            text=new_color,
+            bg="#%02x%02x%02x"%new_color_rgb
+        )
+
     # FUNCTIONS THAT SUPPORT FILE SELECTION
 
     def select_image(self):
@@ -269,7 +290,7 @@ class Interface:
         Allows the user to select a file in any given directory.
         '''
         return filedialog.askopenfilename(
-            initialdir="/",
+            initialdir=DIR_EXAMPLES,
             title="Select jpeg/png",
             filetypes=(
                 ("jpeg/png","*.png *.jpg"),
@@ -307,7 +328,7 @@ class Interface:
 
 # Set up window
 window = tk.Tk()
-interface = Interface(window, "450x215", "VISREP", BACKGROUND_COLOR)
+interface = Interface(window, "450x255", "VISREP", BACKGROUND_COLOR)
 interface.draw_main_menu()
 
 # Run window

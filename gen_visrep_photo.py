@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 # Import complimenting scripts
 from constants import *
 
-def gen_visrep_photo(visrep_matrix, option):
+def gen_visrep_photo(visrep_matrix, color, option):
     '''
     Generates and shows a png that represents a visrep via blocks that are
     coloured black and white.
@@ -15,10 +15,16 @@ def gen_visrep_photo(visrep_matrix, option):
         option = if option="show", the image is shown to the user, if option is
             a directory, the image is saved to that directory
     '''
+    # Find length of canvas
+    canvas_len = int(
+        START_X*2 +
+        BLOCK_WIDTH*len(visrep_matrix) +
+        BLOCK_GAP*(len(visrep_matrix) - 1)
+    )
     # Define the location for the next block to be drawn
     live_x, live_y = START_X, START_Y
     # Define the png canvas
-    canvas = Image.new('RGB', CANVAS_SIZE, color=VISREP_COLOR)
+    canvas = Image.new('RGB', (canvas_len, canvas_len), color=color)
     # Define modification layer of the png canvas
     canvas_draw = ImageDraw.Draw(canvas)
 
@@ -28,9 +34,9 @@ def gen_visrep_photo(visrep_matrix, option):
         '''
         # Define coordinates of each corner of the block
         top_left = (live_x, live_y)
-        top_right = (live_x + BLOCK_WIDTH, live_y)
-        bot_left = (live_x, live_y + BLOCK_WIDTH)
-        bot_right = (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH)
+        top_right = (live_x+BLOCK_WIDTH-1, live_y)
+        bot_left = (live_x, live_y+BLOCK_WIDTH-1)
+        bot_right = (live_x+BLOCK_WIDTH-1, live_y+BLOCK_WIDTH-1)
         # Draw the block onto the canvas
         canvas_draw.polygon(
             [top_left, top_right, bot_right, bot_left],
@@ -62,10 +68,10 @@ def gen_visrep_photo(visrep_matrix, option):
             # Draw smaller block in top right of full block
             canvas_draw.polygon(
                 [
-                    (live_x + BLOCK_WIDTH/2 + 1, live_y),
-                    (live_x + BLOCK_WIDTH, live_y),
-                    (live_x + BLOCK_WIDTH, live_y + BLOCK_WIDTH/2),
-                    (live_x + BLOCK_WIDTH/2 + 1, live_y + BLOCK_WIDTH/2)
+                    (live_x+BLOCK_WIDTH/2, live_y),
+                    (live_x+BLOCK_WIDTH-1, live_y),
+                    (live_x+BLOCK_WIDTH-1, live_y+BLOCK_WIDTH/2-1),
+                    (live_x+BLOCK_WIDTH/2, live_y+BLOCK_WIDTH/2-1)
                 ],
                 fill=color2,
                 outline=None
@@ -74,10 +80,10 @@ def gen_visrep_photo(visrep_matrix, option):
             # Draw smaller block in bottom left of full block
             canvas_draw.polygon(
                 [
-                    (live_x, live_y + BLOCK_WIDTH/2 + 1),
-                    (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH/2 + 1),
-                    (live_x + BLOCK_WIDTH/2, live_y + BLOCK_WIDTH),
-                    (live_x, live_y + BLOCK_WIDTH)
+                    (live_x, live_y+BLOCK_WIDTH/2),
+                    (live_x+BLOCK_WIDTH/2-1, live_y+BLOCK_WIDTH/2),
+                    (live_x+BLOCK_WIDTH/2-1, live_y+BLOCK_WIDTH-1),
+                    (live_x, live_y+BLOCK_WIDTH-1)
                 ],
                 fill=color2,
                 outline=None
