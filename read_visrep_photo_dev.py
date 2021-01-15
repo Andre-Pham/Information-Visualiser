@@ -144,10 +144,15 @@ def read_visrep_photo(file_dir):
     target_image2 = cv2.imread(DIR_ID2)
     target_image3 = cv2.imread(DIR_ID3)
     target_image4 = cv2.imread(DIR_ID4)
+    # Define the false reference identity images
+    false_target1 = cv2.rotate(target_image2, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    false_target2 = cv2.rotate(target_image3, cv2.ROTATE_90_COUNTERCLOCKWISE)
     # Define method for matching images
     method = cv2.TM_SQDIFF_NORMED
     # Define the minimum length of the visrep image
     cv2_visrep_min_length = min([cv2_visrep.shape[0], cv2_visrep.shape[1]])
+    # Define rotation required for correct orientation
+    rotation = None
     # This loop continuously defines the identity block locations, checks if
     # they form a valid square, crops the images if they aren't a valid
     # square, then repeats the process
@@ -160,6 +165,53 @@ def read_visrep_photo(file_dir):
         id3_x, id3_y, _, _ = find_identity(target_image3, method)
         id4_x, id4_y, _, _ = find_identity(target_image4, method)
 
+        # Define the position of the false identity blocks
+        fid1_x, fid1_y, _, _ = find_identity(false_target1, method)
+        fid2_x, fid2_y, _, _ = find_identity(false_target2, method)
+
+        # If visrep is rotated 90 degrees
+        if (check_square_shape(
+                len_top=id4_x-fid1_x,
+                len_bottom=fid2_x-id1_x,
+                len_left=id1_y-fid1_y,
+                len_right=fid2_y-id4_y) and
+                # Top left diagonal to bottom right
+                fid1_x < fid2_x and fid1_y < fid2_y and
+                # Bottom left diagonal to top right
+                id1_x < id4_x and id1_y > id4_y):
+            print("----------\nROTATION DETECTED: 90 degrees\n----------")
+            rotation = cv2.ROTATE_90_COUNTERCLOCKWISE
+            cv2_visrep = cv2.rotate(cv2_visrep, rotation)
+            continue
+        # If visrep is rotated 180 degrees
+        if (check_square_shape(
+                len_top=id2_x-id4_x,
+                len_bottom=id1_x-id3_x,
+                len_left=id3_y-id4_y,
+                len_right=id1_y-id2_y) and
+                # Top left diagonal to bottom right
+                id4_x < id1_x and id4_y < id1_y and
+                # Bottom left diagonal to top right
+                id3_x < id2_x and id3_y > id2_y):
+            print("----------\nROTATION DETECTED: 180 degrees\n----------")
+            rotation = cv2.ROTATE_180
+            cv2_visrep = cv2.rotate(cv2_visrep, rotation)
+            continue
+        # If visrep is rotated -90 degrees
+        if (check_square_shape(
+                len_top=id1_x-fid1_x,
+                len_bottom=fid2_x-id4_x,
+                len_left=id4_y-fid1_y,
+                len_right=fid2_y-id1_y) and
+                # Top left diagonal to bottom right
+                fid1_x < fid2_x and fid1_y < fid2_y and
+                # Bottom left diagonal to top right
+                id4_x < id1_x and id4_y > id1_y):
+            print("----------\nROTATION DETECTED: -90 degrees\n----------")
+            rotation = cv2.cv2.ROTATE_90_CLOCKWISE
+            cv2_visrep = cv2.rotate(cv2_visrep, rotation)
+            continue
+
         # Determines if the defined positions of the identity blocks form a
         # square (and hence the identity block locations found are valid)
         if check_square_shape(
@@ -167,6 +219,7 @@ def read_visrep_photo(file_dir):
                 len_bottom=id4_x-id3_x,
                 len_left=id3_y-id1_y,
                 len_right=id4_y-id2_y):
+            # Stop searching for identity blocks
             break
 
         # If the identity block locations aren't valid, expand the refernce
@@ -181,6 +234,8 @@ def read_visrep_photo(file_dir):
             target_image2 = cv2.imread(DIR_ID2)
             target_image3 = cv2.imread(DIR_ID3)
             target_image4 = cv2.imread(DIR_ID4)
+            false_target1 = cv2.rotate(target_image2, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            false_target2 = cv2.rotate(target_image3, cv2.ROTATE_90_COUNTERCLOCKWISE)
             method = cv2.TM_SQDIFF
             continue
         # If the identity blocks still can't be found
@@ -190,6 +245,8 @@ def read_visrep_photo(file_dir):
         target_image2 = expand_image(target_image2)
         target_image3 = expand_image(target_image3)
         target_image4 = expand_image(target_image4)
+        false_target1 = expand_image(false_target1)
+        false_target2 = expand_image(false_target2)
 
     # Read the visrep using PIL
     PIL_visrep = Image.open(file_dir)
@@ -242,6 +299,9 @@ def read_visrep_photo(file_dir):
             (new_width, new_height),
             interpolation=cv2.INTER_AREA
         )
+    # If the visrep is the incorrect orientation, rotate the image
+    if rotation != None:
+        cv2_visrep_enhance = cv2.rotate(cv2_visrep_enhance, rotation)
 
     '''DEV'''
     # Read the visrep using PIL
@@ -265,6 +325,9 @@ def read_visrep_photo(file_dir):
             (new_width, new_height),
             interpolation=cv2.INTER_AREA
         )
+    # If the visrep is the incorrect orientation, rotate the image
+    if rotation != None:
+        cv2_dev = cv2.rotate(cv2_dev, rotation)
     '''DEV END'''
 
     def draw_rectangle(x, y, width, height, BGR_color, show):
