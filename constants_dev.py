@@ -1,12 +1,19 @@
 # Defines the constants that the other files use, for quick access
 
-# Determine if the OS is MacOS (used for determining directories, logo and font)
+# Import modules
 import sys
-if sys.platform.startswith("darwin"):
-    MAC = True
-    MAC_DIR = __file__[:__file__.rfind("/")+1]
+import os
+
+# Determine current directory
+if sys.platform.startswith("win32"):
+    # Windows
+    DIR_DEFAULT = DIR_DEFAULT = __file__[:__file__.rfind("\\")]
+elif sys.platform.startswith("darwin"):
+    # MacOS
+    DIR_DEFAULT = __file__[:__file__.rfind("/")]
 else:
-    MAC = False
+    # Linux
+    DIR_DEFAULT = __file__[:__file__.rfind("/")]
 
 # Define how many pixels wide are the blocks that make up the visrep
 BLOCK_WIDTH = 40
@@ -54,7 +61,7 @@ ID_RESIZE_COMPOUND_THRESHOLD = 42
 BACKGROUND_COLOR = "white"
 TEXT_COLOR = "black"
 TEXT_COLOR_HIGHLIGHT = "white"
-if MAC:
+if sys.platform.startswith("darwin"):
     TEXT_COLOR_HIGHLIGHT = "black"
 TEXTBOX_COLOR = "#d0d0d0"
 BUTTON_COLOR = "#ee4f4f"
@@ -65,15 +72,13 @@ LOAD_COLOR = "#ffad14"
 BUTTON_WIDTH = 14
 
 # Define directory of identity block reference images
-DIR_ID1 = "resources/identity1.png"
-DIR_ID2 = "resources/identity2.png"
-DIR_ID3 = "resources/identity3.png"
-DIR_ID4 = "resources/identity4.png"
-if MAC:
-    DIR_ID1 = MAC_DIR + DIR_ID1
-    DIR_ID2 = MAC_DIR + DIR_ID2
-    DIR_ID3 = MAC_DIR + DIR_ID3
-    DIR_ID4 = MAC_DIR + DIR_ID4
+DIR_ID1 = os.path.join(DIR_DEFAULT, "resources", "identity1.png")
+DIR_ID2 = os.path.join(DIR_DEFAULT, "resources", "identity2.png")
+DIR_ID3 = os.path.join(DIR_DEFAULT, "resources", "identity3.png")
+DIR_ID4 = os.path.join(DIR_DEFAULT, "resources", "identity4.png")
 
 # Define directory of logo
-DIR_LOGO = "resources/logo.ico"
+DIR_LOGO = os.path.join(DIR_DEFAULT, "resources", "logo.ico")
+
+# Define directory of examples
+DIR_EXAMPLES = os.path.join(DIR_DEFAULT, "EXAMPLES TO TRY")

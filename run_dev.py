@@ -77,7 +77,8 @@ def common_popup(title, message):
     popup=tk.Toplevel()
     popup.geometry("350x100")
     popup.title(title)
-    popup.iconbitmap(DIR_LOGO)
+    if not sys.platform.startswith("darwin"):
+        popup.iconbitmap(DIR_LOGO)
     tk.Label(
         popup,
         text=message,
@@ -112,7 +113,7 @@ class Interface:
         window.geometry(geometry)
         window.title(title)
         window.configure(bg=bg)
-        if not MAC:
+        if not sys.platform.startswith("darwin"):
             window.iconbitmap(DIR_LOGO)
 
         # Set grid configurations of interface
@@ -248,11 +249,6 @@ class Interface:
         Generates text from a visrep image file, selected via file explorer.
         Activates from "Select Image" button.
         '''
-        self.live_text_box.config(
-            text="Loading...",
-            bg=LOAD_COLOR,
-            fg=TEXT_COLOR_HIGHLIGHT
-        )
         visrep_dir = self.select_image()
         visrep_matrix = read_visrep_photo(visrep_dir)
         text_output = read_visrep_matrix(visrep_matrix)
@@ -282,7 +278,7 @@ class Interface:
         Allows the user to select a file in any given directory.
         '''
         return filedialog.askopenfilename(
-            initialdir="/",
+            initialdir=DIR_EXAMPLES,
             title="Select jpeg/png",
             filetypes=(
                 ("jpeg/png","*.png *.jpg"),
