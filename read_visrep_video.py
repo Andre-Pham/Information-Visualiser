@@ -4,7 +4,7 @@
 import cv2
 from threading import Thread
 # Import complimenting scripts
-from read_visrep_photo_dev import *
+from read_visrep_photo import *
 from constants import *
 
 def read_visrep_video():
@@ -68,7 +68,7 @@ def read_visrep_video():
                     read_frames.append(visrep_matrix)
             except:
                 # No visrep was found in the frame
-                print("No visrep found")
+                pass
 
     # Define a secondary thread for reading the video
     # Note: how to pass arguments...

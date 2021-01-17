@@ -73,13 +73,19 @@ def read_visrep_photo(file_dir):
 
     PARAMETERS:
         file_dir = directory of the image file to be converted to a 2D matrix
-            representation
+            representation, or a cv2 read visrep image (both work)
     OUTPUT:
         visrep_matrix = 2D matrix (nested lists) representation of the visrep
             found in the given image file
     '''
-    # Read the image using cv2
-    cv2_visrep = cv2.imread(file_dir)
+    if type(file_dir) == str:
+        # Read the image using cv2
+        cv2_visrep = cv2.imread(file_dir)
+        disable_photo_preview = False
+    else:
+        # Define the cv2 image
+        cv2_visrep = file_dir
+        disable_photo_preview = True
 
     # Identify the height and width of the visrep
     height, width, _ = cv2_visrep.shape
@@ -248,8 +254,13 @@ def read_visrep_photo(file_dir):
         false_target1 = expand_image(false_target1)
         false_target2 = expand_image(false_target2)
 
-    # Read the visrep using PIL
-    PIL_visrep = Image.open(file_dir)
+    if type(file_dir) == str:
+        # Read the visrep using PIL
+        PIL_visrep = Image.open(file_dir)
+    else:
+        # If cv2 image is provided, convert provided cv2 image to PIL image
+        frame_convert = cv2.cvtColor(file_dir, cv2.COLOR_BGR2RGB)
+        PIL_visrep = Image.fromarray(frame_convert)
     # Identify the brightness adjustment
     # 1. Identify four known black pixels (next to each other)
     black_color_ref_list = [
@@ -304,8 +315,13 @@ def read_visrep_photo(file_dir):
         cv2_visrep_enhance = cv2.rotate(cv2_visrep_enhance, rotation)
 
     '''DEV'''
-    # Read the visrep using PIL
-    PIL_dev = Image.open(file_dir)
+    if type(file_dir) == str:
+        # Read the visrep using PIL
+        PIL_dev = Image.open(file_dir)
+    else:
+        # If cv2 image is provided, convert provided cv2 image to PIL image
+        frame_convert = cv2.cvtColor(file_dir, cv2.COLOR_BGR2RGB)
+        PIL_dev = Image.fromarray(frame_convert)
     # Enhance the brightness
     enhancer = ImageEnhance.Brightness(PIL_dev)
     PIL_dev_enhance = enhancer.enhance(brightness_enhance)
@@ -526,10 +542,11 @@ def read_visrep_photo(file_dir):
 
     print(f"----------\nBLOCK LENGTH: {block_len}\n----------")
     print(f"----------\nGAP SIZE: {gap_size}\n----------")
-    draw_rectangle(int(id1_x-block_len/2), int(id1_y-block_len/2), block_len, block_len, (0,0,255), False)
-    draw_rectangle(int(id2_x-block_len/2), int(id2_y-block_len/2), block_len, block_len, (0,0,255), False)
-    draw_rectangle(int(id3_x-block_len/2), int(id3_y-block_len/2), block_len, block_len, (0,0,255), False)
-    draw_rectangle(int(id4_x-block_len/2), int(id4_y-block_len/2), block_len, block_len, (0,0,255), False)
+    if not disable_photo_preview:
+        draw_rectangle(int(id1_x-block_len/2), int(id1_y-block_len/2), block_len, block_len, (0,0,255), False)
+        draw_rectangle(int(id2_x-block_len/2), int(id2_y-block_len/2), block_len, block_len, (0,0,255), False)
+        draw_rectangle(int(id3_x-block_len/2), int(id3_y-block_len/2), block_len, block_len, (0,0,255), False)
+        draw_rectangle(int(id4_x-block_len/2), int(id4_y-block_len/2), block_len, block_len, (0,0,255), False)
 
     # Find approximately how many blocks in a row
     approx_block_in_row = int((id4_x - id1_x)/(step_size) + 1)
@@ -584,7 +601,8 @@ def read_visrep_photo(file_dir):
                 block_len/2
             )
 
-        draw_rectangle(x_limit, live_y-block_len, 0, 2*block_len, (255,0,187), False)
+        if not disable_photo_preview:
+            draw_rectangle(x_limit, live_y-block_len, 0, 2*block_len, (255,0,187), False)
 
         # Loop until live_x reaches further than the visrep's side
         while live_x < x_limit:
@@ -592,7 +610,8 @@ def read_visrep_photo(file_dir):
             # (first block)
             color = list(cv2_visrep_enhance[live_y][live_x])
 
-            draw_rectangle(live_x-3, live_y-3, 6, 6, (0,0,255), False)
+            if not disable_photo_preview:
+                draw_rectangle(live_x-3, live_y-3, 6, 6, (0,0,255), False)
 
             # If the colour is bright, assume white, and add it to the block
             # row
@@ -667,7 +686,8 @@ def read_visrep_photo(file_dir):
             if visrep_edge == True:
                 adjust_y = 0
 
-            draw_rectangle(live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), False)
+            if not disable_photo_preview:
+                draw_rectangle(live_x-3+adjust_x, live_y-3+adjust_y, 6, 6, (0,255,0), False)
 
             # Adjust live_x to the horizontal centre of the block which was
             # just read
@@ -697,7 +717,8 @@ def read_visrep_photo(file_dir):
         if live_y >= id3_y-int(block_len/2):
             break
 
-        draw_rectangle(live_x-3, live_y-3, 6, 6, (255,0,0), True)
+        if not disable_photo_preview:
+            draw_rectangle(live_x-3, live_y-3, 6, 6, (255,0,0), True)
 
         # Adjust live_x to the horizontal centre of the block which was
         # just read (the starting block of the new row to be scanned)
@@ -758,7 +779,8 @@ def read_visrep_photo(file_dir):
         ["I3"] + create_block_row("BOTTOM", live_x, live_y) + ["I4"]
     )
 
-    draw_rectangle(0, 0, 0, 0, (0, 0, 0), True)
+    if not disable_photo_preview:
+        draw_rectangle(0, 0, 0, 0, (0, 0, 0), True)
     print("--------FOUND MATRIX----------")
     for block in visrep_matrix:
         print(block)
