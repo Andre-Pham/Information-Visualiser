@@ -87,6 +87,38 @@ def read_visrep_photo(file_dir):
         cv2_visrep = file_dir
         disable_photo_preview = True
 
+    '''TESTING START'''
+
+    frame_convert = cv2.cvtColor(cv2_visrep, cv2.COLOR_BGR2RGB)
+    PIL_visrep = Image.fromarray(frame_convert)
+    # Identify the brightness adjustment
+    # 1. Identify four known black pixels (next to each other)
+    converter = ImageEnhance.Color(PIL_visrep)
+    PIL_visrep_enhance = converter.enhance(2)
+
+    enhancer = ImageEnhance.Sharpness(PIL_visrep_enhance)
+    PIL_visrep_enhance = enhancer.enhance(2.5)
+
+
+    # Enhance the brightness
+    enhancer = ImageEnhance.Brightness(PIL_visrep_enhance)
+    PIL_visrep_enhance = enhancer.enhance(1.5)
+    # Identify contrast adjustment
+    # (based on fitted cubic graph using points [0, 1], [52, 1.3], [164.5, 1.5],
+    # [381, 2] which were collected from testing images)
+
+    # Enhance the contrast
+    enhancer = ImageEnhance.Contrast(PIL_visrep_enhance)
+    PIL_visrep_enhance = enhancer.enhance(1.5)
+
+    # Convert the enhanced PIL visrep to cv2
+    cv2_visrep = cv2.cvtColor(
+        np.array(PIL_visrep_enhance),
+        cv2.COLOR_RGB2BGR
+    )
+
+    '''TESTING END'''
+
     # Identify the height and width of the visrep
     height, width, _ = cv2_visrep.shape
     # Identify the longest side of the visrep
@@ -174,6 +206,29 @@ def read_visrep_photo(file_dir):
         # Define the position of the false identity blocks
         fid1_x, fid1_y, _, _ = find_identity(false_target1, method)
         fid2_x, fid2_y, _, _ = find_identity(false_target2, method)
+
+        '''TESTING START'''
+        len2 = int(target_image1.shape[0]/2)
+        # Draw the rectangle on cv2_image
+        cv2.rectangle(cv2_visrep, (id1_x-len2, id1_y-len2), (id1_x+len2, id1_y+len2), (0,0,255), 2)
+
+        len2 = int(target_image1.shape[0]/2)
+        # Draw the rectangle on cv2_image
+        cv2.rectangle(cv2_visrep, (id2_x-len2, id2_y-len2), (id2_x+len2, id2_y+len2), (0,255,0), 2)
+
+        len2 = int(target_image1.shape[0]/2)
+        # Draw the rectangle on cv2_image
+        cv2.rectangle(cv2_visrep, (id3_x-len2, id3_y-len2), (id3_x+len2, id3_y+len2), (255,0,0), 2)
+
+        len2 = int(target_image1.shape[0]/2)
+        # Draw the rectangle on cv2_image
+        cv2.rectangle(cv2_visrep, (id4_x-len2, id4_y-len2), (id4_x+len2, id4_y+len2), (255,0,255), 2)
+
+        # Display the original image with the rectangle around the match.
+        cv2.imshow('output', cv2_visrep)
+        # The image is only displayed if we call this
+        cv2.waitKey(0)
+        '''TESTING END'''
 
         # If visrep is rotated 90 degrees
         if (check_square_shape(
