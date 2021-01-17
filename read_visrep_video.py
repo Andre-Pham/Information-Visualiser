@@ -100,7 +100,7 @@ def read_visrep_video():
             frame = cv2.flip(frame, 1)
 
             # Display video to user
-            cv2.imshow("Video (ESC to quit)", frame)
+            cv2.imshow("Your Camera (Scan VISREP or ESC to Close)", frame)
 
         # Close reading threads; this is necessary if user presses ESC
         end_all_threads = True
