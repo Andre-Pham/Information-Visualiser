@@ -18,7 +18,10 @@ This program has an interactive user interface built in. It has been tested on W
 * Read saved VISREP images, and display the translated output to the user.
 * Recieve video stream from the device's front camera, and translate and display any detected VISREP image shown. This can vary in success with lighting, movement and image quality.
 
-*Note: emojis are not supported.
+Limitations:
+
+* Emojis are not supported.
+* Some Windows machines (for some reason) cannot access the webcam.
 
 #### Requirements.
 
