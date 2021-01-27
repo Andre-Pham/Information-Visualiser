@@ -4,8 +4,6 @@
 
 A self-made QR code program that turns information into visual pattern, and back again.
 
-[TOC]
-
 #### Terminology.
 
 * VISREP: "visual representation", used to describe the visual representation of some text in the form of an image.
