@@ -5,7 +5,7 @@ import cv2
 from threading import Thread
 # Import complimenting scripts
 from read_visrep_photo_dev import *
-from constants import *
+from constants_dev import *
 
 def read_visrep_video():
     '''

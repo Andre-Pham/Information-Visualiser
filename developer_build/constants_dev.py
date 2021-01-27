@@ -81,4 +81,4 @@ DIR_ID4 = os.path.join(DIR_DEFAULT, "resources", "identity4.png")
 DIR_LOGO = os.path.join(DIR_DEFAULT, "resources", "logo.ico")
 
 # Define directory of examples
-DIR_EXAMPLES = os.path.join(DIR_DEFAULT, "EXAMPLES TO TRY")
+DIR_EXAMPLES = os.path.join(DIR_DEFAULT, "..", "EXAMPLES TO TRY")

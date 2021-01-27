@@ -5,9 +5,9 @@ import tkinter as tk
 from tkinter import filedialog
 import sys
 # Import complimenting scripts
-from gen_visrep_photo import *
-from gen_visrep_matrix import *
-from read_visrep_matrix import *
+from gen_visrep_photo_dev import *
+from gen_visrep_matrix_dev import *
+from read_visrep_matrix_dev import *
 from read_visrep_photo_dev import *
 from read_visrep_video_dev import *
 from constants_dev import *
