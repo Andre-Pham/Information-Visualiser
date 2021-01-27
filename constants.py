@@ -69,7 +69,7 @@ FONT = "System"
 SUCCESS_COLOR = "#22c95d"
 FAIL_COLOR = "#ee4f4f"
 LOAD_COLOR = "#ffad14"
-BUTTON_WIDTH = 14
+BUTTON_WIDTH = 17
 
 # Define directory of identity block reference images
 DIR_ID1 = os.path.join(DIR_DEFAULT, "resources", "identity1.png")

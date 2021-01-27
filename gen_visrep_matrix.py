@@ -65,11 +65,11 @@ def gen_visrep_matrix(text):
     '''
     # Determine how many bits is required to represent each character
     all_ascii_used = [ord(char.lower()) for char in text]
-    try:
+    if len(all_ascii_used) == 0:
+        char_bits_len = 0
+    else:
         max_ascii = max(all_ascii_used)
         char_bits_len = len(bin(max_ascii)) - 2
-    except:
-        char_bits_len = 0
 
     # Define how many blocks the visrep currently has (before adding zeros to
     # the end to make the block count a perfect square)

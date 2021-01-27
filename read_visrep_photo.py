@@ -73,13 +73,17 @@ def read_visrep_photo(file_dir):
 
     PARAMETERS:
         file_dir = directory of the image file to be converted to a 2D matrix
-            representation
+            representation, or a cv2 read visrep image (both work)
     OUTPUT:
         visrep_matrix = 2D matrix (nested lists) representation of the visrep
             found in the given image file
     '''
-    # Read the image using cv2
-    cv2_visrep = cv2.imread(file_dir)
+    if type(file_dir) == str:
+        # Read the image using cv2
+        cv2_visrep = cv2.imread(file_dir)
+    else:
+        # Define the cv2 image
+        cv2_visrep = file_dir
 
     # Identify the height and width of the visrep
     height, width, _ = cv2_visrep.shape
@@ -245,8 +249,13 @@ def read_visrep_photo(file_dir):
         false_target1 = expand_image(false_target1)
         false_target2 = expand_image(false_target2)
 
-    # Read the visrep using PIL
-    PIL_visrep = Image.open(file_dir)
+    if type(file_dir) == str:
+        # Read the visrep using PIL
+        PIL_visrep = Image.open(file_dir)
+    else:
+        # If cv2 image is provided, convert provided cv2 image to PIL image
+        frame_convert = cv2.cvtColor(file_dir, cv2.COLOR_BGR2RGB)
+        PIL_visrep = Image.fromarray(frame_convert)
     # Identify the brightness adjustment
     # 1. Identify four known black pixels (next to each other)
     black_color_ref_list = [

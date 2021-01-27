@@ -9,6 +9,7 @@ from gen_visrep_photo import *
 from gen_visrep_matrix import *
 from read_visrep_matrix import *
 from read_visrep_photo_dev import *
+from read_visrep_video_dev import *
 from constants_dev import *
 
 def common_title(text):
@@ -123,8 +124,9 @@ class Interface:
         # Define tkinter elements for the main menu page
         self.main_menu_elements = [
             common_title("Main Menu [DEVELOPER MODE]"),
-            common_button("Text to VISREP", lambda: self.draw_gen_visrep()),
-            common_button("VISREP to Text", lambda: self.draw_gen_text()),
+            common_button("Generate VISREP", lambda: self.draw_gen_visrep()),
+            common_button("Read VISREP Photo", lambda: self.draw_read_photo()),
+            common_button("Read VISREP Video", lambda: self.draw_read_video()),
             common_button("Quit", lambda: self.quit_interface())
         ]
 
@@ -138,10 +140,18 @@ class Interface:
             common_button("Main Menu", lambda: self.draw_main_menu())
         ]
 
-        # Define tkinter elements for the 'visrep to text' page
-        self.gen_text_elements = [
-            common_title("VISREP to Text [DEVELOPER MODE]"),
-            common_button("Select Image", lambda: self.translate_visrep_button()),
+        # Define tkinter elements for the 'read visrep photo' page
+        self.read_photo_elements = [
+            common_title("Read VISREP Photo [DEVELOPER MODE]"),
+            common_button("Select Image", lambda: self.translate_photo_button()),
+            common_text_output(),
+            common_button("Main Menu", lambda: self.draw_main_menu())
+        ]
+
+        # Define tkinter elements for the 'read visrep video' page
+        self.read_video_elements = [
+            common_title("Read VISREP Video [DEVELOPER MODE]"),
+            common_button("Start Video", lambda: self.translate_video_button()),
             common_text_output(),
             common_button("Main Menu", lambda: self.draw_main_menu())
         ]
@@ -192,12 +202,24 @@ class Interface:
         self.live_text_box = self.gen_visrep_elements[1]
         self.live_text_box.delete('1.0', tk.END)
 
-    def draw_gen_text(self):
+    def draw_read_photo(self):
         '''
-        Changes all elements on the interface to display 'visrep to text' page.
+        Changes all elements on the interface to display 'read visrep photo' page.
         '''
-        self.change_elements(self.gen_text_elements)
-        self.live_text_box = self.gen_text_elements[2]
+        self.change_elements(self.read_photo_elements)
+        self.live_text_box = self.read_photo_elements[2]
+        self.live_text_box.config(
+            text="",
+            bg=TEXTBOX_COLOR,
+            fg=TEXT_COLOR
+        )
+
+    def draw_read_video(self):
+        '''
+        Changes all elements on the interface to display 'read visrep video' page.
+        '''
+        self.change_elements(self.read_video_elements)
+        self.live_text_box = self.read_video_elements[2]
         self.live_text_box.config(
             text="",
             bg=TEXTBOX_COLOR,
@@ -244,13 +266,26 @@ class Interface:
                 "The VISREP could either not be generated or saved."
             )
 
-    def translate_visrep_button(self):
+    def translate_photo_button(self):
         '''
         Generates text from a visrep image file, selected via file explorer.
         Activates from "Select Image" button.
         '''
         visrep_dir = self.select_image()
         visrep_matrix = read_visrep_photo(visrep_dir)
+        text_output = read_visrep_matrix(visrep_matrix)
+        self.live_text_box.config(
+            text=text_output,
+            bg=SUCCESS_COLOR,
+            fg=TEXT_COLOR_HIGHLIGHT
+        )
+
+    def translate_video_button(self):
+        '''
+        Generates text from a visrep video, from the webcam. Activates from
+        "Start Video" button.
+        '''
+        visrep_matrix = read_visrep_video()
         text_output = read_visrep_matrix(visrep_matrix)
         self.live_text_box.config(
             text=text_output,
