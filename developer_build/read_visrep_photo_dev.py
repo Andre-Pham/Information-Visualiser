@@ -364,7 +364,7 @@ def read_visrep_photo(file_dir):
         cv2.rectangle(cv2_dev, (x, y), (x+width, y+height), BGR_color, 2)
         if show:
             # Display the original image with the rectangle around the match.
-            cv2.imshow('Computer-vision preview (Close to continue, ESC on MacOS)', cv2_dev)
+            cv2.imshow('Computer-vision preview (ESC to continue)', cv2_dev)
             # The image is only displayed if we call this
             cv2.waitKey(0)
 
