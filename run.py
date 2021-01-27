@@ -296,7 +296,15 @@ class Interface:
         Generates text from a visrep video, from the webcam. Activates from
         'Start Video' button.
         '''
-        visrep_matrix = read_visrep_video()
+        try:
+            visrep_matrix = read_visrep_video()
+        except:
+            self.live_text_box.config(
+                text="ERROR: No recording device found.",
+                bg=FAIL_COLOR,
+                fg=TEXT_COLOR_HIGHLIGHT
+            )
+            return
         text_output = read_visrep_matrix(visrep_matrix)
         self.live_text_box.config(
             text=text_output,
