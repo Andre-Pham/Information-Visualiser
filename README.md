@@ -2,7 +2,7 @@
 
 #### Description.
 
-A self-made QR code program that turns information into visual pattern, and back again.
+A self-made QR code program that turns information into visual pattern, and back again. Note that this was built before I properly learnt to design software using OOP (and other practices), so the implementation may look a bit odd. For insight into the program's functionality, visit the **Documentation** directory.
 
 #### Terminology.
 
@@ -22,6 +22,20 @@ Limitations:
 
 * Emojis are not supported.
 * Some Windows machines (for some reason) cannot access the webcam.
+
+#### Demos
+
+Generating a VISREP.
+
+![](Demos/demo_generate_visrep.gif)
+
+Reading a VISREP.
+
+![](Demos/demo_read_visrep.gif)
+
+Reading a VISREP and previewing the computer's vision. The red in the corners are the computer identifying the 'identity blocks', the red squares are where the computer calculates the next block to be, the green squares are the computer's adjustment to the centre of the block, the blue squares are where the computer calculates the first block of the next row are, and the purple is where the computer calculates the edge of the VISREP to be.
+
+![](Demos/demo_dev_read_visrep.gif)
 
 #### Requirements.
 
@@ -50,5 +64,6 @@ Installed modules used:
 * **read_visrep_video.py** translates video feed of a VISREP image to a VISREP matrix.
 * **unit_tests.py** translates all image files inside the folder **EXAMPLES TO TRY** and outputs the result to the terminal.
 * **developer_build** contains a duplicate of the program, however produces output useful to the developer, such as a visual preview to what the computer "sees", and measurements made about the image that are printed to the terminal.
+* **Documentation** contains documentation for the project, providing insight into the purpose of many of the functions.
 * **EXAMPLES TO TRY** includes images that the user can try scanning to test out the program.
-* **resources** contains other non-python files that the program requires to operate, for functional and non-functional purpopses.
+* **resources** contains other non-python files that the program requires to operate, for functional and non-functional purposes.
