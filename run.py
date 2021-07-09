@@ -107,8 +107,6 @@ class Interface:
         self.drawn_elements = []
         # Define current textbox object in use, so that it can easily be updated
         self.live_text_box = None
-        # Define current dropdown object in use, so that it can easily be read
-        self.live_dropdown = tk.StringVar(window)
 
         # Set properties of interface
         window.geometry(geometry)
