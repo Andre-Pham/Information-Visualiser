@@ -156,7 +156,7 @@ It was found however that images can't be all adjusted the same way. Increasing 
 
 The following functions were made to calculate the contrast and brightness needed.
 
-![image-20210128081604862](C:\Users\andre\AppData\Roaming\Typora\typora-user-images\image-20210128081604862.png) 
+![image-20210128081604862](Images/image-20210128081604862.png) 
 *Vertical axis represents the amount of brightness or contrast, horizontal axis represents the level of brightness of the black pixels within the first identity block; 0 being 100% black, and 765 being 100% white. A brightness adjustment greater than 1 increases brightness, while a brightness adjustment smaller than 1 decreases brightness. A greater contrast adjustment increases contrast.*
 
 Sample images were collected, and adjusted according to their level of brightness and contrast. The level of brightness and contrast needed for each image was paired with the level of brightness found in the black pixels within the first identity block, which is used as a reference to how bright the image was before adjustment. This allowed for the the calculation of how much brightness and contrast is required (approximately) for any type of image. This resolved the issue.
